@@ -14,7 +14,168 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      events: {
+        Row: {
+          admin_password: string
+          age_range: number
+          code: string
+          created_at: string
+          id: string
+          name: string
+          reveal_time: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_password: string
+          age_range?: number
+          code: string
+          created_at?: string
+          id?: string
+          name: string
+          reveal_time?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_password?: string
+          age_range?: number
+          code?: string
+          created_at?: string
+          id?: string
+          name?: string
+          reveal_time?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      hobbies: {
+        Row: {
+          emoji: string | null
+          id: string
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          emoji?: string | null
+          id?: string
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          emoji?: string | null
+          id?: string
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      participants: {
+        Row: {
+          age: number
+          answers: Json
+          city: string | null
+          compatibility_badge: string | null
+          compatibility_score: number | null
+          created_at: string
+          event_id: string
+          gender: string
+          hobbies: string[]
+          id: string
+          matched_to: string | null
+          name: string
+          orientation: string
+          rematch_used: boolean
+          session_token: string
+          show_me: string[]
+          updated_at: string
+        }
+        Insert: {
+          age: number
+          answers?: Json
+          city?: string | null
+          compatibility_badge?: string | null
+          compatibility_score?: number | null
+          created_at?: string
+          event_id: string
+          gender: string
+          hobbies?: string[]
+          id?: string
+          matched_to?: string | null
+          name: string
+          orientation: string
+          rematch_used?: boolean
+          session_token: string
+          show_me?: string[]
+          updated_at?: string
+        }
+        Update: {
+          age?: number
+          answers?: Json
+          city?: string | null
+          compatibility_badge?: string | null
+          compatibility_score?: number | null
+          created_at?: string
+          event_id?: string
+          gender?: string
+          hobbies?: string[]
+          id?: string
+          matched_to?: string | null
+          name?: string
+          orientation?: string
+          rematch_used?: boolean
+          session_token?: string
+          show_me?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "participants_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "participants_matched_to_fkey"
+            columns: ["matched_to"]
+            isOneToOne: false
+            referencedRelation: "participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      questions: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          options: string[]
+          question: string
+          sort_order: number
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          options: string[]
+          question: string
+          sort_order?: number
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          options?: string[]
+          question?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
