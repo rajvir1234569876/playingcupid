@@ -127,7 +127,7 @@ export default function JoinEvent() {
       }} transition={{
         delay: 0.7
       }} className="mt-8">
-          <Button variant="ghost" onClick={() => navigate("/admin")} className="text-foreground hover:text-foreground">
+          <Button variant="ghost" onClick={() => navigate("/admin")} className="text-secondary-foreground hover:text-secondary-foreground">
             <Users className="w-4 h-4 mr-2" />
             Host an event
           </Button>
