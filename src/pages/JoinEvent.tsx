@@ -80,7 +80,7 @@ export default function JoinEvent() {
       }} transition={{
         delay: 0.3
       }} className="font-display text-5xl sm:text-6xl font-bold mb-4">
-          <span className="text-primary">meet</span>
+          <span className="text-primary">up</span>
           <span className="text-primary">up</span>
         </motion.h1>
 
@@ -127,7 +127,7 @@ export default function JoinEvent() {
       }} transition={{
         delay: 0.7
       }} className="mt-8">
-          <Button variant="ghost" onClick={() => navigate("/admin")} className="text-secondary-foreground hover:text-secondary-foreground">
+          <Button variant="ghost" onClick={() => navigate("/admin")} className="text-muted-foreground hover:text-foreground">
             <Users className="w-4 h-4 mr-2" />
             Host an event
           </Button>
