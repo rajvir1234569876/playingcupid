@@ -247,7 +247,7 @@ export default function AdminPanel() {
                             </span>
                             {event.reveal_time && <span className="flex items-center gap-1">
                                 <Clock className="w-4 h-4" />
-                                {new Date(event.reveal_time).toLocaleString()}
+                                {new Date(event.reveal_time).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} IST
                               </span>}
                           </div>
                           

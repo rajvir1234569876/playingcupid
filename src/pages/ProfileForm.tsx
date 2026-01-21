@@ -113,8 +113,8 @@ export default function ProfileForm() {
       return false;
     }
     const age = parseInt(formData.age);
-    if (!age || age < 18 || age > 99) {
-      toast.error("Please enter a valid age (18-99)");
+    if (!age || age < 15 || age > 99) {
+      toast.error("Please enter a valid age (15-99)");
       return false;
     }
     if (!formData.gender) {
@@ -227,7 +227,7 @@ export default function ProfileForm() {
               <div className="grid grid-cols-2 gap-4 text-primary-foreground">
                 <div>
                   <Label htmlFor="age">Age</Label>
-                  <Input id="age" type="number" placeholder="18" min="18" max="99" value={formData.age} onChange={e => updateFormData("age", e.target.value)} className="bg-background/50 border-border/50 h-12" />
+                  <Input id="age" type="number" placeholder="15" min="15" max="99" value={formData.age} onChange={e => updateFormData("age", e.target.value)} className="bg-background/50 border-border/50 h-12" />
                 </div>
                 <div>
                   <Label htmlFor="city">City (optional)</Label>
