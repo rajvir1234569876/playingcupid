@@ -40,10 +40,12 @@ export function QuestionCard({
         </div>
       </div>
 
-      {/* Question */}
-      <h3 className="font-display text-2xl sm:text-3xl text-center text-foreground mb-8">
-        {question.question}
-      </h3>
+      {/* Question card - Red background with yellow text */}
+      <div className="question-card p-6 sm:p-8 mb-6">
+        <h3 className="font-display text-2xl sm:text-3xl text-center font-bold">
+          {question.question}
+        </h3>
+      </div>
 
       {/* Options */}
       <div className="space-y-3">
@@ -61,19 +63,19 @@ export function QuestionCard({
                 w-full p-4 sm:p-5 rounded-xl text-left transition-all duration-200
                 border-2
                 ${isSelected 
-                  ? "bg-primary/20 border-primary text-foreground" 
-                  : "bg-card/50 border-border/50 text-foreground/80 hover:border-primary/50 hover:bg-card"
+                  ? "bg-primary text-primary-foreground border-primary" 
+                  : "bg-card border-border text-foreground hover:border-primary/50 hover:bg-card/80"
                 }
               `}
             >
               <div className="flex items-center gap-4">
                 <div className={`
                   w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
-                  ${isSelected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}
+                  ${isSelected ? "bg-primary-foreground text-primary" : "bg-muted text-muted-foreground"}
                 `}>
                   {String.fromCharCode(65 + index)}
                 </div>
-                <span className="text-base sm:text-lg">{option}</span>
+                <span className="text-base sm:text-lg font-medium">{option}</span>
               </div>
             </motion.button>
           );

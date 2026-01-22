@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* OneMatch Design System - Dark Romantic Theme */
+/* Meetup Design System - Warm Romantic Theme */
 
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
@@ -14,75 +14,82 @@
 
 @layer base {
   :root {
-    /* Dark romantic palette */
-    --background: 0 0% 96%;
-    --foreground: 0 0% 9%;
+    /* Cream Vanilla palette */
+    --background: 30 33% 91%; /* #EFE6DE */
+    --foreground: 0 100% 30%; /* Cherry Cola #9A0002 */
 
-    --card: 0 0% 98%;
-    --card-foreground: 0 0% 9%;
+    --card: 30 30% 95%;
+    --card-foreground: 0 100% 30%;
 
-    --popover: 0 0% 89%;
-    --popover-foreground: 0 0% 9%;
+    --popover: 30 25% 90%;
+    --popover-foreground: 0 100% 30%;
 
-    /* Rose primary */
-    --primary: 20 90% 48%;
-    --primary-foreground: 33 100% 96%;
+    /* Cherry Cola primary */
+    --primary: 0 100% 30%; /* #9A0002 */
+    --primary-foreground: 30 33% 91%; /* Cream for text on primary */
 
-    /* Deep purple secondary */
-    --secondary: 0 0% 32%;
-    --secondary-foreground: 0 0% 98%;
+    /* Question card colors */
+    --question-bg: 0 100% 30%; /* Cherry red */
+    --question-text: 54 100% 65%; /* Yellow #FFEF4D */
+
+    /* Deep secondary */
+    --secondary: 0 50% 20%;
+    --secondary-foreground: 30 33% 91%;
 
     /* Muted tones */
-    --muted: 0 0% 63%;
-    --muted-foreground: 0 0% 9%;
+    --muted: 30 20% 70%;
+    --muted-foreground: 0 50% 35%;
 
     /* Champagne gold accent */
-    --accent: 47 100% 96%;
-    --accent-foreground: 37 92% 50%;
+    --accent: 38 70% 65%;
+    --accent-foreground: 0 100% 30%;
 
     --destructive: 0 72% 50%;
     --destructive-foreground: 0 85% 97%;
 
-    --border: 0 0% 83%;
-    --input: 0 0% 83%;
-    --ring: 20 90% 48%;
+    --border: 30 20% 80%;
+    --input: 30 20% 85%;
+    --ring: 0 100% 30%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
 
     /* Custom tokens */
     --glow-rose: 350 75% 60%;
     --glow-gold: 38 70% 65%;
-    --midnight: 270 50% 6%;
-    --deep-purple: 280 40% 12%;
+    --midnight: 0 100% 20%;
+    --deep-purple: 0 80% 25%;
     --soft-pink: 350 60% 75%;
     --champagne: 38 70% 65%;
+    --cream: 30 33% 91%;
+    --cherry: 0 100% 30%;
+    --yellow: 54 100% 65%;
 
-    /* Gradients as CSS custom properties */
-    --gradient-romantic: linear-gradient(135deg, hsl(350 75% 60% / 0.2), hsl(280 40% 20% / 0.3));
-    --gradient-card: linear-gradient(180deg, hsl(270 40% 12%), hsl(270 50% 8%));
-    --gradient-glow: radial-gradient(circle at center, hsl(350 75% 60% / 0.15), transparent 70%);
+    /* Gradients */
+    --gradient-romantic: linear-gradient(135deg, hsl(0 100% 30% / 0.1), hsl(30 33% 91% / 0.8));
+    --gradient-card: linear-gradient(180deg, hsl(30 30% 95%), hsl(30 33% 91%));
+    --gradient-glow: radial-gradient(circle at center, hsl(0 100% 30% / 0.1), transparent 70%);
     --gradient-gold: linear-gradient(135deg, hsl(38 70% 65%), hsl(38 80% 55%));
-    --gradient-hero: linear-gradient(180deg, hsl(270 50% 8%), hsl(280 40% 6%));
+    --gradient-hero: linear-gradient(180deg, hsl(30 33% 91%), hsl(30 28% 88%));
 
     /* Shadows */
-    --shadow-glow: 0 0 60px hsl(350 75% 60% / 0.3);
-    --shadow-card: 0 8px 32px hsl(0 0% 0% / 0.4);
-    --shadow-button: 0 4px 20px hsl(350 75% 60% / 0.4);
+    --shadow-glow: 0 0 60px hsl(0 100% 30% / 0.15);
+    --shadow-card: 0 8px 32px hsl(0 0% 0% / 0.1);
+    --shadow-button: 0 4px 20px hsl(0 100% 30% / 0.25);
 
-    --sidebar-background: 270 40% 10%;
-    --sidebar-foreground: 0 0% 9%;
-    --sidebar-primary: 20 90% 48%;
-    --sidebar-primary-foreground: 33 100% 96%;
-    --sidebar-accent: 0 0% 32%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 83%;
-    --sidebar-ring: 20 90% 48%;
-    --chart-1: 27 95% 60%;
-    --chart-2: 43 96% 56%;
-    --chart-3: 47 95% 53%;
-    --chart-4: 24 94% 53%;
-    --chart-5: 0 0% 45%;
-    --sidebar: 0 0% 98%;
+    --sidebar-background: 30 30% 95%;
+    --sidebar-foreground: 0 100% 30%;
+    --sidebar-primary: 0 100% 30%;
+    --sidebar-primary-foreground: 30 33% 91%;
+    --sidebar-accent: 38 70% 65%;
+    --sidebar-accent-foreground: 0 100% 30%;
+    --sidebar-border: 30 20% 80%;
+    --sidebar-ring: 0 100% 30%;
+    --chart-1: 0 100% 40%;
+    --chart-2: 38 70% 60%;
+    --chart-3: 54 100% 65%;
+    --chart-4: 0 80% 50%;
+    --chart-5: 30 30% 60%;
+    --sidebar: 30 30% 95%;
     --font-sans: 'Roboto', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
     --font-serif: 'Libre Caslon Text', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
     --font-mono: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
@@ -96,48 +103,6 @@
     --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
     --tracking-normal: 0em;
     --spacing: 0.25rem;
-  }
-  .dark {
-    --background: 0 0% 9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 14%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 25%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 27 95% 60%;
-    --primary-foreground: 12 81% 14%;
-    --secondary: 0 0% 45%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 45%;
-    --muted-foreground: 0 0% 98%;
-    --accent: 20 91% 14%;
-    --accent-foreground: 43 96% 56%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 85% 97%;
-    --border: 0 0% 32%;
-    --input: 0 0% 32%;
-    --ring: 27 95% 60%;
-    --chart-1: 30 97% 72%;
-    --chart-2: 45 96% 64%;
-    --chart-3: 48 96% 76%;
-    --chart-4: 27 95% 60%;
-    --chart-5: 0 0% 45%;
-    --sidebar: 0 0% 14%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 27 95% 60%;
-    --sidebar-primary-foreground: 12 81% 14%;
-    --sidebar-accent: 43 96% 56%;
-    --sidebar-accent-foreground: 20 91% 14%;
-    --sidebar-border: 0 0% 32%;
-    --sidebar-ring: 27 95% 60%;
-    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
-    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
-    --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
-    --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
   }
 }
 
@@ -153,23 +118,30 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', sans-serif;
-    background-image: var(--gradient-hero);
+    background: hsl(var(--background));
     min-height: 100vh;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Playfair Display', serif;
+    color: hsl(var(--primary));
   }
 }
 
 @layer components {
   .glass-card {
-    @apply bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl;
+    @apply bg-card/90 backdrop-blur-xl border border-border/50 rounded-2xl;
     box-shadow: var(--shadow-card);
   }
 
+  .question-card {
+    background: hsl(var(--question-bg));
+    color: hsl(var(--question-text));
+    @apply rounded-2xl shadow-lg;
+  }
+
   .glow-text {
-    text-shadow: 0 0 40px hsl(var(--primary) / 0.5);
+    text-shadow: 0 0 40px hsl(var(--primary) / 0.3);
   }
 
   .romantic-gradient {
@@ -216,10 +188,10 @@
 
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.2);
   }
   50% {
-    box-shadow: 0 0 40px hsl(var(--primary) / 0.5);
+    box-shadow: 0 0 40px hsl(var(--primary) / 0.35);
   }
 }
 

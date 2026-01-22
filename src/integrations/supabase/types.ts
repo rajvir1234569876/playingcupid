@@ -83,6 +83,7 @@ export type Database = {
           gender: string
           hobbies: string[]
           id: string
+          instagram: string | null
           matched_to: string | null
           name: string
           orientation: string
@@ -102,6 +103,7 @@ export type Database = {
           gender: string
           hobbies?: string[]
           id?: string
+          instagram?: string | null
           matched_to?: string | null
           name: string
           orientation: string
@@ -121,6 +123,7 @@ export type Database = {
           gender?: string
           hobbies?: string[]
           id?: string
+          instagram?: string | null
           matched_to?: string | null
           name?: string
           orientation?: string

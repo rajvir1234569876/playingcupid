@@ -37,7 +37,7 @@ export default function RevealPage() {
     const duration = 3000;
     const end = Date.now() + duration;
 
-    const colors = ["#e63946", "#f4a261", "#e9c46a", "#ff69b4"];
+    const colors = ["#9A0002", "#FFEF4D", "#EFE6DE", "#ff69b4"];
 
     (function frame() {
       confetti({
@@ -177,8 +177,8 @@ export default function RevealPage() {
     <div className="min-h-screen flex flex-col items-center justify-center p-6 overflow-hidden">
       {/* Background effects */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-primary/15 rounded-full blur-[150px]" />
-        <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-champagne/10 rounded-full blur-[100px]" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-primary/10 rounded-full blur-[150px]" />
+        <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-accent/10 rounded-full blur-[100px]" />
       </div>
 
       <AnimatePresence mode="wait">
@@ -230,9 +230,9 @@ export default function RevealPage() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2 }}
-              className="text-lg text-champagne mb-4"
+              className="text-2xl text-primary font-display mb-4"
             >
-              👉 Your match is...
+              💌 Your Match Is...
             </motion.p>
             <motion.div
               initial={{ opacity: 0 }}
@@ -289,7 +289,7 @@ export default function RevealPage() {
             className="text-center glass-card p-8 max-w-md"
           >
             <HeartIcon className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
-            <h2 className="font-display text-2xl font-bold text-foreground mb-3">
+            <h2 className="font-display text-2xl font-bold mb-3">
               No Match This Time
             </h2>
             <p className="text-muted-foreground mb-6">
@@ -309,15 +309,15 @@ export default function RevealPage() {
       <Dialog open={showIcebreaker} onOpenChange={setShowIcebreaker}>
         <DialogContent className="bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="font-display text-xl text-foreground">
+            <DialogTitle className="font-display text-xl">
               Conversation Starter 💬
             </DialogTitle>
             <DialogDescription className="text-muted-foreground">
               Use this to break the ice with your match!
             </DialogDescription>
           </DialogHeader>
-          <div className="p-4 bg-secondary/30 rounded-lg">
-            <p className="text-lg text-foreground text-center">
+          <div className="p-4 bg-secondary/10 rounded-lg">
+            <p className="text-lg text-center">
               "{currentIcebreaker}"
             </p>
           </div>

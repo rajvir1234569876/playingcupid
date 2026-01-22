@@ -17,6 +17,7 @@ export interface Participant {
   name: string;
   age: number;
   city: string | null;
+  instagram: string | null;
   gender: string;
   orientation: string;
   show_me: string[];
