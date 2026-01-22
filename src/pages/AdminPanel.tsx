@@ -381,9 +381,7 @@ export default function AdminPanel() {
           <div className="flex items-center gap-3">
             <HeartIcon className="w-10 h-10 text-primary" />
             <div>
-              <h1 className="font-display text-3xl font-bold">
-                Event Host
-              </h1>
+              <h1 className="font-display text-3xl font-bold">playingcupid</h1>
               {currentEvent && <p className="text-muted-foreground">{currentEvent.name}</p>}
             </div>
           </div>
