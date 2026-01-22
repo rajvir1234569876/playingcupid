@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { HeartIcon } from "./ui/HeartIcon";
 import { Button } from "./ui/button";
-import { MapPin, MessageCircle, RefreshCw, Sparkles } from "lucide-react";
+import { MapPin, MessageCircle, RefreshCw, Sparkles, Instagram } from "lucide-react";
 import type { Participant } from "@/lib/types";
 
 interface MatchCardProps {
@@ -33,8 +33,18 @@ export function MatchCard({
       className="glass-card p-8 max-w-md mx-auto text-center relative overflow-hidden"
     >
       {/* Decorative glow */}
-      <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
       
+      {/* Header */}
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="text-xl font-display text-primary mb-4"
+      >
+        💌 Your Match Is…
+      </motion.p>
+
       {/* Heart icon */}
       <motion.div 
         className="relative z-10 mb-6"
@@ -50,7 +60,7 @@ export function MatchCard({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="font-display text-4xl font-bold text-foreground mb-2"
+        className="font-display text-4xl font-bold mb-2"
       >
         {match.name}
       </motion.h2>
@@ -74,6 +84,26 @@ export function MatchCard({
         )}
       </motion.div>
 
+      {/* Instagram */}
+      {match.instagram && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.55 }}
+          className="flex items-center justify-center gap-2 mb-4"
+        >
+          <Instagram className="w-4 h-4 text-primary" />
+          <a 
+            href={`https://instagram.com/${match.instagram.replace('@', '')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline font-medium"
+          >
+            {match.instagram.startsWith('@') ? match.instagram : `@${match.instagram}`}
+          </a>
+        </motion.div>
+      )}
+
       {/* Compatibility score */}
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
@@ -81,19 +111,19 @@ export function MatchCard({
         transition={{ delay: 0.6, type: "spring" }}
         className="mb-6"
       >
-        <div className="inline-flex items-center gap-2 bg-primary/20 px-6 py-3 rounded-full border border-primary/30">
-          <Sparkles className="w-5 h-5 text-champagne" />
+        <div className="inline-flex items-center gap-2 bg-primary/10 px-6 py-3 rounded-full border border-primary/20">
+          <Sparkles className="w-5 h-5 text-accent" />
           <span className="text-2xl font-bold text-primary">{compatibilityScore}%</span>
-          <span className="text-foreground/80">compatible</span>
+          <span className="text-muted-foreground">compatible</span>
         </div>
       </motion.div>
 
-      {/* Badge line */}
+      {/* Badge line - AI-generated compatibility line */}
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.7 }}
-        className="text-lg text-champagne italic mb-6 gold-shimmer"
+        className="text-lg text-accent italic mb-6 font-medium"
       >
         "{badge}"
       </motion.p>
@@ -114,7 +144,7 @@ export function MatchCard({
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.9 + i * 0.1 }}
-                className="px-4 py-2 bg-secondary/50 rounded-full text-sm text-foreground border border-border/50"
+                className="px-4 py-2 bg-secondary/10 rounded-full text-sm border border-border"
               >
                 {interest}
               </motion.span>
@@ -142,7 +172,7 @@ export function MatchCard({
         <Button
           onClick={onIcebreaker}
           variant="outline"
-          className="w-full border-champagne/50 text-champagne hover:bg-champagne/10"
+          className="w-full border-accent text-accent hover:bg-accent/10"
           size="lg"
         >
           <MessageCircle className="w-5 h-5 mr-2" />

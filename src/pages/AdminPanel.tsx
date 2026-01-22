@@ -5,12 +5,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { HeartIcon } from "@/components/ui/HeartIcon";
-import { Plus, Users, Play, Clock, Copy, Check, Loader2, LogOut, ArrowLeft } from "lucide-react";
+import { Plus, Users, Play, Clock, Copy, Check, Loader2, LogOut, ArrowLeft, Heart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import type { Event } from "@/lib/types";
+
+interface MatchPair {
+  personA: { id: string; name: string };
+  personB: { id: string; name: string };
+  compatibilityScore: number;
+}
 
 export default function AdminPanel() {
   const navigate = useNavigate();
@@ -26,6 +34,7 @@ export default function AdminPanel() {
   const [participantCount, setParticipantCount] = useState(0);
   const [isTriggering, setIsTriggering] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [matchPairs, setMatchPairs] = useState<MatchPair[]>([]);
   
   // Create event state
   const [activeTab, setActiveTab] = useState("manage");
@@ -45,6 +54,34 @@ export default function AdminPanel() {
     }
   }, []);
 
+  // Auto-refresh matches when event is revealed
+  useEffect(() => {
+    if (currentEvent?.status === "revealed") {
+      fetchMatchPairs(currentEvent.id);
+      
+      // Set up realtime subscription for match updates
+      const channel = supabase
+        .channel('participants-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'participants',
+            filter: `event_id=eq.${currentEvent.id}`,
+          },
+          () => {
+            fetchMatchPairs(currentEvent.id);
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [currentEvent?.id, currentEvent?.status]);
+
   const fetchEventById = async (eventId: string) => {
     try {
       const { data, error } = await supabase
@@ -61,6 +98,10 @@ export default function AdminPanel() {
       setCurrentEvent(data as Event);
       setIsAuthenticated(true);
       fetchParticipantCount(eventId);
+      
+      if (data.status === "revealed") {
+        fetchMatchPairs(eventId);
+      }
     } catch (error) {
       console.error("Error fetching event:", error);
       sessionStorage.removeItem("admin_event_id");
@@ -73,6 +114,36 @@ export default function AdminPanel() {
       .select("*", { count: "exact", head: true })
       .eq("event_id", eventId);
     setParticipantCount(count || 0);
+  };
+
+  const fetchMatchPairs = async (eventId: string) => {
+    const { data: participants } = await supabase
+      .from("participants")
+      .select("id, name, matched_to, compatibility_score")
+      .eq("event_id", eventId)
+      .not("matched_to", "is", null);
+
+    if (!participants) return;
+
+    const pairs: MatchPair[] = [];
+    const processedIds = new Set<string>();
+
+    for (const p of participants) {
+      if (processedIds.has(p.id)) continue;
+      
+      const match = participants.find(m => m.id === p.matched_to);
+      if (match && !processedIds.has(match.id)) {
+        pairs.push({
+          personA: { id: p.id, name: p.name },
+          personB: { id: match.id, name: match.name },
+          compatibilityScore: p.compatibility_score || 0,
+        });
+        processedIds.add(p.id);
+        processedIds.add(match.id);
+      }
+    }
+
+    setMatchPairs(pairs);
   };
 
   const handleLogin = async () => {
@@ -103,6 +174,11 @@ export default function AdminPanel() {
       setIsAuthenticated(true);
       sessionStorage.setItem("admin_event_id", data.id);
       fetchParticipantCount(data.id);
+      
+      if (data.status === "revealed") {
+        fetchMatchPairs(data.id);
+      }
+      
       toast.success(`Welcome! Managing "${data.name}"`);
     } catch (error) {
       console.error("Login error:", error);
@@ -118,6 +194,7 @@ export default function AdminPanel() {
     setCurrentEvent(null);
     setAuthEventCode("");
     setAuthPassword("");
+    setMatchPairs([]);
     sessionStorage.removeItem("admin_event_id");
   };
 
@@ -182,6 +259,25 @@ export default function AdminPanel() {
     }
   };
 
+  const updateAgeRange = async (value: string) => {
+    if (!currentEvent) return;
+    
+    try {
+      const { error } = await supabase
+        .from("events")
+        .update({ age_range: parseInt(value) })
+        .eq("id", currentEvent.id);
+
+      if (error) throw error;
+
+      setCurrentEvent(prev => prev ? { ...prev, age_range: parseInt(value) } : null);
+      toast.success(`Age range updated to ±${value} years`);
+    } catch (error) {
+      console.error("Error updating age range:", error);
+      toast.error("Failed to update age range");
+    }
+  };
+
   const triggerReveal = async () => {
     if (!currentEvent) return;
 
@@ -207,7 +303,10 @@ export default function AdminPanel() {
         .eq("id", currentEvent.id)
         .single();
       
-      if (data) setCurrentEvent(data as Event);
+      if (data) {
+        setCurrentEvent(data as Event);
+        fetchMatchPairs(data.id);
+      }
     } catch (error) {
       console.error("Error triggering reveal:", error);
       toast.error("Failed to trigger matching");
@@ -233,7 +332,7 @@ export default function AdminPanel() {
     return (
       <div className="min-h-screen p-6 flex items-center justify-center">
         <div className="fixed inset-0 pointer-events-none">
-          <div className="absolute top-1/4 right-1/4 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[100px]" />
+          <div className="absolute top-1/4 right-1/4 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px]" />
         </div>
 
         <motion.div
@@ -243,14 +342,14 @@ export default function AdminPanel() {
         >
           <div className="flex items-center gap-3 mb-8 justify-center">
             <HeartIcon className="w-10 h-10 text-primary" />
-            <h1 className="font-display text-3xl font-bold text-primary">
+            <h1 className="font-display text-3xl font-bold">
               Event Host
             </h1>
           </div>
 
           <Card className="bg-card border-border">
             <CardHeader>
-              <CardTitle className="text-foreground">Access Your Event</CardTitle>
+              <CardTitle>Access Your Event</CardTitle>
               <CardDescription>
                 Enter your event code and admin password to manage your event
               </CardDescription>
@@ -263,7 +362,7 @@ export default function AdminPanel() {
                   placeholder="ABC123"
                   value={authEventCode}
                   onChange={(e) => setAuthEventCode(e.target.value.toUpperCase())}
-                  className="bg-background/50 border-border uppercase"
+                  className="bg-card border-border uppercase"
                   maxLength={6}
                 />
               </div>
@@ -275,7 +374,7 @@ export default function AdminPanel() {
                   placeholder="Your admin password"
                   value={authPassword}
                   onChange={(e) => setAuthPassword(e.target.value)}
-                  className="bg-background/50 border-border"
+                  className="bg-card border-border"
                   onKeyDown={(e) => e.key === "Enter" && handleLogin()}
                 />
               </div>
@@ -334,7 +433,7 @@ export default function AdminPanel() {
   return (
     <div className="min-h-screen p-6">
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-1/4 right-1/4 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[100px]" />
+        <div className="absolute top-1/4 right-1/4 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px]" />
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto">
@@ -346,7 +445,7 @@ export default function AdminPanel() {
           <div className="flex items-center gap-3">
             <HeartIcon className="w-10 h-10 text-primary" />
             <div>
-              <h1 className="font-display text-3xl font-bold text-primary">
+              <h1 className="font-display text-3xl font-bold">
                 Event Host
               </h1>
               {currentEvent && (
@@ -365,6 +464,9 @@ export default function AdminPanel() {
             <TabsTrigger value="manage" disabled={!currentEvent}>
               Manage Event
             </TabsTrigger>
+            <TabsTrigger value="matches" disabled={!currentEvent || currentEvent.status !== "revealed"}>
+              Match Table
+            </TabsTrigger>
             <TabsTrigger value="create">Create New</TabsTrigger>
           </TabsList>
 
@@ -379,7 +481,7 @@ export default function AdminPanel() {
                   <CardHeader className="pb-3">
                     <div className="flex justify-between items-start">
                       <div>
-                        <CardTitle className="text-foreground text-2xl">
+                        <CardTitle className="text-2xl">
                           {currentEvent.name}
                         </CardTitle>
                         <CardDescription className="flex items-center gap-2 mt-2">
@@ -388,10 +490,10 @@ export default function AdminPanel() {
                               px-2 py-0.5 rounded-full text-xs font-medium
                               ${
                                 currentEvent.status === "waiting"
-                                  ? "bg-yellow-500/20 text-yellow-400"
+                                  ? "bg-yellow-500/20 text-yellow-600"
                                   : currentEvent.status === "matching"
-                                  ? "bg-blue-500/20 text-blue-400"
-                                  : "bg-green-500/20 text-green-400"
+                                  ? "bg-blue-500/20 text-blue-600"
+                                  : "bg-green-500/20 text-green-600"
                               }
                             `}
                           >
@@ -416,16 +518,16 @@ export default function AdminPanel() {
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-background/50 rounded-lg p-4 text-center">
+                      <div className="bg-background rounded-lg p-4 text-center">
                         <Users className="w-8 h-8 text-primary mx-auto mb-2" />
-                        <p className="text-2xl font-bold text-foreground">
+                        <p className="text-2xl font-bold">
                           {participantCount}
                         </p>
                         <p className="text-sm text-muted-foreground">Participants</p>
                       </div>
-                      <div className="bg-background/50 rounded-lg p-4 text-center">
+                      <div className="bg-background rounded-lg p-4 text-center">
                         <Clock className="w-8 h-8 text-primary mx-auto mb-2" />
-                        <p className="text-sm font-medium text-foreground">
+                        <p className="text-sm font-medium">
                           {currentEvent.reveal_time
                             ? new Date(currentEvent.reveal_time).toLocaleString(
                                 "en-IN",
@@ -436,6 +538,33 @@ export default function AdminPanel() {
                         <p className="text-sm text-muted-foreground">Reveal Time</p>
                       </div>
                     </div>
+
+                    {/* Age Range Configuration */}
+                    {currentEvent.status === "waiting" && (
+                      <div className="bg-background rounded-lg p-4">
+                        <Label className="text-sm font-medium mb-2 block">Age Range Configuration</Label>
+                        <div className="flex items-center gap-4">
+                          <Select
+                            value={currentEvent.age_range.toString()}
+                            onValueChange={updateAgeRange}
+                          >
+                            <SelectTrigger className="w-[180px] bg-card">
+                              <SelectValue placeholder="Select age range" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="1">±1 year</SelectItem>
+                              <SelectItem value="2">±2 years</SelectItem>
+                              <SelectItem value="3">±3 years</SelectItem>
+                              <SelectItem value="5">±5 years</SelectItem>
+                              <SelectItem value="10">±10 years</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <p className="text-sm text-muted-foreground">
+                            Matches will be within ±{currentEvent.age_range} years of age
+                          </p>
+                        </div>
+                      </div>
+                    )}
 
                     {currentEvent.status === "waiting" && (
                       <Button
@@ -459,8 +588,11 @@ export default function AdminPanel() {
 
                     {currentEvent.status === "revealed" && (
                       <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4 text-center">
-                        <p className="text-green-400 font-medium">
+                        <p className="text-green-600 font-medium">
                           ✨ Matches have been revealed!
+                        </p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {matchPairs.length} pairs matched
                         </p>
                       </div>
                     )}
@@ -479,11 +611,68 @@ export default function AdminPanel() {
             )}
           </TabsContent>
 
+          {/* Match Table */}
+          <TabsContent value="matches">
+            <Card className="bg-card border-border">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Heart className="w-5 h-5 text-primary" />
+                  Match Results
+                </CardTitle>
+                <CardDescription>
+                  Live view of all matches for {currentEvent?.name}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {matchPairs.length > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Person A</TableHead>
+                        <TableHead className="text-center">↔</TableHead>
+                        <TableHead>Person B</TableHead>
+                        <TableHead className="text-right">Compatibility</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {matchPairs.map((pair, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">{pair.personA.name}</TableCell>
+                          <TableCell className="text-center">
+                            <Heart className="w-4 h-4 text-primary mx-auto" />
+                          </TableCell>
+                          <TableCell className="font-medium">{pair.personB.name}</TableCell>
+                          <TableCell className="text-right">
+                            <span className={`
+                              px-2 py-1 rounded-full text-sm font-medium
+                              ${pair.compatibilityScore >= 80 
+                                ? "bg-green-500/20 text-green-600" 
+                                : pair.compatibilityScore >= 60 
+                                ? "bg-yellow-500/20 text-yellow-600"
+                                : "bg-orange-500/20 text-orange-600"
+                              }
+                            `}>
+                              {pair.compatibilityScore}%
+                            </span>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No matches yet. Trigger the reveal to see matches.
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Create event */}
           <TabsContent value="create">
             <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle className="text-foreground">Create New Event</CardTitle>
+                <CardTitle>Create New Event</CardTitle>
                 <CardDescription>Set up a new matching event</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -496,27 +685,30 @@ export default function AdminPanel() {
                     onChange={(e) =>
                       setNewEvent((prev) => ({ ...prev, name: e.target.value }))
                     }
-                    className="bg-background/50 border-border"
+                    className="bg-card border-border"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="ageRange">Age Range (±years)</Label>
-                    <Input
-                      id="ageRange"
-                      type="number"
-                      min="1"
-                      max="10"
+                    <Select
                       value={newEvent.ageRange}
-                      onChange={(e) =>
-                        setNewEvent((prev) => ({
-                          ...prev,
-                          ageRange: e.target.value,
-                        }))
+                      onValueChange={(value) =>
+                        setNewEvent((prev) => ({ ...prev, ageRange: value }))
                       }
-                      className="bg-background/50 border-border"
-                    />
+                    >
+                      <SelectTrigger className="bg-card border-border">
+                        <SelectValue placeholder="Select age range" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">±1 year</SelectItem>
+                        <SelectItem value="2">±2 years</SelectItem>
+                        <SelectItem value="3">±3 years</SelectItem>
+                        <SelectItem value="5">±5 years</SelectItem>
+                        <SelectItem value="10">±10 years</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <Label htmlFor="revealTime">Reveal Time (optional)</Label>
@@ -530,7 +722,7 @@ export default function AdminPanel() {
                           revealTime: e.target.value,
                         }))
                       }
-                      className="bg-background/50 border-border"
+                      className="bg-card border-border"
                     />
                   </div>
                 </div>
@@ -548,7 +740,7 @@ export default function AdminPanel() {
                         adminPassword: e.target.value,
                       }))
                     }
-                    className="bg-background/50 border-border"
+                    className="bg-card border-border"
                   />
                   <p className="text-xs text-muted-foreground mt-1">
                     Save this password! You'll need it to access this event later.

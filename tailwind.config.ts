@@ -91,6 +91,11 @@ export default {
   			champagne: 'hsl(var(--champagne))',
   			'glow-rose': 'hsl(var(--glow-rose))',
   			'glow-gold': 'hsl(var(--glow-gold))',
+  			cream: 'hsl(var(--cream))',
+  			cherry: 'hsl(var(--cherry))',
+  			yellow: 'hsl(var(--yellow))',
+  			'question-bg': 'hsl(var(--question-bg))',
+  			'question-text': 'hsl(var(--question-text))',
   			sidebar: {
   				DEFAULT: 'hsl(var(--sidebar-background))',
   				foreground: 'hsl(var(--sidebar-foreground))',
