@@ -80,8 +80,9 @@ export default function JoinEvent() {
       }} transition={{
         delay: 0.3
       }} className="font-display text-5xl sm:text-6xl font-bold mb-4">
-          <span className="text-primary">meet</span>
-          <span className="text-primary">up</span>
+          <span className="text-primary">playing</span>
+          <span className="text-primary">cupid
+        </span>
         </motion.h1>
 
         <motion.p initial={{
@@ -90,7 +91,7 @@ export default function JoinEvent() {
         opacity: 1
       }} transition={{
         delay: 0.4
-      }} className="text-lg mb-10 text-primary-foreground">
+      }} className="text-lg mb-10 text-primary">
           One event. One match. One moment.
         </motion.p>
 
