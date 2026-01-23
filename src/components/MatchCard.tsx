@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { HeartIcon } from "./ui/HeartIcon";
+
 import { Button } from "./ui/button";
 import { MapPin, MessageCircle, RefreshCw, Sparkles, Instagram } from "lucide-react";
 import type { Participant } from "@/lib/types";
@@ -45,15 +45,6 @@ export function MatchCard({
         💌 Your Match Is…
       </motion.p>
 
-      {/* Heart icon */}
-      <motion.div 
-        className="relative z-10 mb-6"
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-      >
-        <HeartIcon className="w-16 h-16 text-primary mx-auto" animate />
-      </motion.div>
 
       {/* Match name */}
       <motion.h2

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { QuestionCard } from "@/components/QuestionCard";
 import { HobbySelector } from "@/components/HobbySelector";
-import { HeartIcon } from "@/components/ui/HeartIcon";
+
 import { ArrowLeft, ArrowRight, Loader2, Instagram } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -362,9 +362,7 @@ export default function ProfileForm() {
       opacity: 1,
       y: 0
     }} className="flex items-center justify-center gap-2 mb-8">
-        <HeartIcon className="w-8 h-8 text-primary" />
-        <span className="font-display text-2xl font-bold text-primary">playingcupid
-      </span>
+        <span className="font-display text-2xl font-bold text-primary">playingcupid</span>
       </motion.div>
 
       {/* Form content */}
@@ -394,7 +392,7 @@ export default function ProfileForm() {
                 Submitting...
               </> : <>
                 Find My Match
-                <HeartIcon className="w-4 h-4 ml-2" />
+                <ArrowRight className="w-4 h-4 ml-2" />
               </>}
           </Button> : null}
       </motion.div>

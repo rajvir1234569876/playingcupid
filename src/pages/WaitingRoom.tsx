@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { HeartIcon } from "@/components/ui/HeartIcon";
+
 import { CountdownTimer } from "@/components/CountdownTimer";
 import { ParticipantCount } from "@/components/ParticipantCount";
 import { supabase } from "@/integrations/supabase/client";
@@ -119,15 +119,6 @@ export default function WaitingRoom() {
         transition={{ duration: 0.6 }}
         className="relative z-10 text-center max-w-lg w-full"
       >
-        {/* Animated heart */}
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.2, type: "spring" }}
-          className="mb-8"
-        >
-          <HeartIcon className="w-20 h-20 text-primary mx-auto pulse-glow" animate />
-        </motion.div>
 
         {/* Event name */}
         <motion.h1

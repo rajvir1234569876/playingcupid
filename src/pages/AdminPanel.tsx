@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { HeartIcon } from "@/components/ui/HeartIcon";
+
 import { Plus, Users, Play, Clock, Copy, Check, Loader2, LogOut, ArrowLeft, Heart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -310,8 +310,7 @@ export default function AdminPanel() {
         y: 0
       }} className="relative z-10 w-full max-w-md">
           <div className="flex items-center gap-3 mb-8 justify-center">
-            <HeartIcon className="w-10 h-10 text-primary" />
-            <h1 className="font-display text-3xl font-bold">playingcupid</h1>
+            <h1 className="font-display text-3xl font-bold text-primary">playingcupid</h1>
           </div>
 
           <Card className="bg-card border-border">
@@ -379,9 +378,8 @@ export default function AdminPanel() {
         y: 0
       }} className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <HeartIcon className="w-10 h-10 text-primary" />
             <div>
-              <h1 className="font-display text-3xl font-bold">playingcupid</h1>
+              <h1 className="font-display text-3xl font-bold text-primary">playingcupid</h1>
               {currentEvent && <p className="text-muted-foreground">{currentEvent.name}</p>}
             </div>
           </div>
@@ -497,7 +495,6 @@ export default function AdminPanel() {
                 </Card>
               </motion.div> : <Card className="bg-card border-border">
                 <CardContent className="py-12 text-center">
-                  <HeartIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground">
                     Create a new event or log in to an existing one
                   </p>
