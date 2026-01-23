@@ -110,7 +110,7 @@ export default function JoinEvent() {
             <span className="text-sm font-medium uppercase tracking-wider text-primary">Enter Event Code</span>
           </div>
 
-          <Input type="text" placeholder="LOVE2024" value={eventCode} onChange={e => setEventCode(e.target.value.toUpperCase())} className="text-center text-2xl font-mono tracking-widest h-14 bg-background/50 border-border/50 mb-4" maxLength={10} />
+          <Input type="text" placeholder="eg. XXXXXX" value={eventCode} onChange={e => setEventCode(e.target.value.toUpperCase())} className="text-center text-2xl font-mono tracking-widest h-14 bg-background/50 border-border/50 mb-4" maxLength={10} />
 
           <Button type="submit" disabled={isLoading || !eventCode.trim()} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-button h-12 text-lg">
             {isLoading ? "Joining..." : <>
