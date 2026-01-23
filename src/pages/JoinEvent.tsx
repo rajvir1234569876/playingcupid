@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { HeartIcon } from "@/components/ui/HeartIcon";
 import { Sparkles, ArrowRight, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -57,18 +56,6 @@ export default function JoinEvent() {
     }} transition={{
       duration: 0.6
     }} className="relative z-10 text-center max-w-md w-full">
-        {/* Logo/Icon */}
-        <motion.div initial={{
-        scale: 0
-      }} animate={{
-        scale: 1
-      }} transition={{
-        delay: 0.2,
-        type: "spring",
-        stiffness: 200
-      }} className="mb-8">
-          <HeartIcon className="w-20 h-20 text-primary mx-auto" animate />
-        </motion.div>
 
         {/* Title */}
         <motion.h1 initial={{

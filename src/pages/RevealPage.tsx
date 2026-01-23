@@ -3,8 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { MatchCard } from "@/components/MatchCard";
-import { HeartIcon } from "@/components/ui/HeartIcon";
+
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { getSession } from "@/lib/session";
@@ -191,7 +192,7 @@ export default function RevealPage() {
             exit={{ opacity: 0 }}
             className="text-center"
           >
-            <HeartIcon className="w-16 h-16 text-primary mx-auto animate-pulse" />
+            <Loader2 className="w-16 h-16 text-primary mx-auto animate-spin" />
             <p className="text-muted-foreground mt-4">Loading your match...</p>
           </motion.div>
         )}
@@ -288,7 +289,7 @@ export default function RevealPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center glass-card p-8 max-w-md"
           >
-            <HeartIcon className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
+            <div className="w-16 h-16 text-muted-foreground mx-auto mb-6 flex items-center justify-center text-5xl">💔</div>
             <h2 className="font-display text-2xl font-bold mb-3">
               No Match This Time
             </h2>
