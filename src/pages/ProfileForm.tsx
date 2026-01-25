@@ -281,7 +281,7 @@ export default function ProfileForm() {
 
             <div className="space-y-6">
               <div>
-                <Label>I am</Label>
+                <Label>I am..</Label>
                 <div className="grid grid-cols-2 gap-2 mt-2">
                   {ORIENTATIONS.map(o => <Button key={o} type="button" variant={formData.orientation === o ? "default" : "outline"} onClick={() => updateFormData("orientation", o)} className={formData.orientation === o ? "bg-primary" : "border-border"}>
                       {o}
