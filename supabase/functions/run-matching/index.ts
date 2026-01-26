@@ -18,27 +18,53 @@ interface Participant {
   matched_to: string | null;
 }
 
-const COMPATIBILITY_BADGES = [
-  "Cancel your backup plans 💕",
-  "Two weirds = one normal 🌟",
-  "Plot twist energy ✨",
-  "Main character vibes together 🎬",
-  "Your algorithm matched 🤖❤️",
-  "Stars aligned for you two ⭐",
-  "Chemistry loading... complete! 🧪",
-  "Meant to swipe right 💫",
-  "The universe shipped it 🚀",
-  "Meet-cute in the making 🎬",
-  "Red string of fate found 🧵",
-  "Vibe check: passed ✨",
+interface QuestionConfig {
+  category: string;
+  type: "alignment" | "complement" | "neutral";
+  options: string[];
+}
+
+// Question categories and their scoring behavior
+// ALIGNMENT: Similar answers = good, opposite = rejection
+// COMPLEMENT: Moderate difference = bonus, same = neutral, extreme opposite = penalty
+// NEUTRAL: No effect on score, used for explanations only
+
+const ALIGNMENT_CATEGORIES = [
+  "relationship",      // Relationship preferences
+  "emotional_depth",   // Emotional openness & depth
+  "conflict",          // Conflict handling
+  "values",            // Core life values & priorities
 ];
 
-// Values-based question categories for compatibility
-const VALUES_CATEGORIES = [
-  "relationship", // Relationship preference questions
-  "emotional",    // Emotional depth questions
-  "conflict",     // Conflict handling questions
-  "priorities",   // Life priorities questions
+const COMPLEMENT_CATEGORIES = [
+  "personality",       // Energy, style, approach
+  "communication",     // Communication style
+  "connection",        // Connection preferences
+];
+
+const NEUTRAL_CATEGORIES = [
+  "lifestyle",         // Travel, pets, weekend - flavor only
+  "dating",            // First date preferences - flavor
+];
+
+// Explanation templates for alignment insights
+const ALIGNMENT_INSIGHTS = [
+  "You share core emotional values",
+  "Your relationship priorities align beautifully",
+  "You value the same things in connection",
+  "Your emotional depth resonates together",
+  "You both approach trust similarly",
+  "Your conflict styles are compatible",
+];
+
+// Explanation templates for complement insights
+const COMPLEMENT_INSIGHTS = [
+  "while bringing different energies to the table",
+  "and balance each other's social style",
+  "with complementary communication approaches",
+  "while offering different perspectives",
+  "and your personalities create balance",
+  "with energies that complement each other",
 ];
 
 function checkOrientationCompatibility(p1: Participant, p2: Participant): boolean {
@@ -58,78 +84,190 @@ function checkOrientationCompatibility(p1: Participant, p2: Participant): boolea
   return p1WantsP2 && p2WantsP1;
 }
 
-function calculateCompatibility(
-  p1: Participant, 
-  p2: Participant, 
-  ageRange: number,
-  questionCategories: Map<string, string>
-): number {
-  // Hard filter: Age within range
-  if (Math.abs(p1.age - p2.age) > ageRange) return 0;
-
-  // Hard filter: Orientation compatibility
-  if (!checkOrientationCompatibility(p1, p2)) return 0;
-
-  let score = 0;
-
-  // Separate answers by category
-  const p1Answers = new Map(p1.answers.map(a => [a.question_id, a.answer]));
-  const p2Answers = new Map(p2.answers.map(a => [a.question_id, a.answer]));
-  
-  let valuesMatches = 0;
-  let valuesTotal = 0;
-  let generalMatches = 0;
-  let generalTotal = 0;
-
-  p1Answers.forEach((answer, qId) => {
-    if (p2Answers.has(qId)) {
-      const category = questionCategories.get(qId) || "general";
-      const isMatch = p2Answers.get(qId) === answer;
-      
-      if (VALUES_CATEGORIES.includes(category)) {
-        valuesTotal++;
-        if (isMatch) valuesMatches++;
-      } else {
-        generalTotal++;
-        if (isMatch) generalMatches++;
-      }
-    }
-  });
-
-  // Values alignment (40%) - must have reasonable match
-  if (valuesTotal > 0) {
-    const valuesScore = valuesMatches / valuesTotal;
-    // If less than 40% values match, significantly penalize
-    if (valuesScore < 0.4) {
-      return 0; // Hard reject on values mismatch
-    }
-    score += valuesScore * 40;
-  } else {
-    score += 20; // Default if no values questions
-  }
-
-  // General questions (20%)
-  if (generalTotal > 0) {
-    score += (generalMatches / generalTotal) * 20;
-  } else {
-    score += 10;
-  }
-
-  // Hobbies overlap (25%)
-  const commonHobbies = p1.hobbies.filter(h => p2.hobbies.includes(h));
-  const maxHobbies = Math.max(p1.hobbies.length, p2.hobbies.length, 1);
-  score += (commonHobbies.length / maxHobbies) * 25;
-
-  // Base compatibility bonus (15%)
-  score += 15;
-
-  return Math.round(Math.min(score, 100));
+// Calculate "distance" between answers (0 = same option, 1 = adjacent, etc.)
+function getAnswerDistance(answer1: string, answer2: string, options: string[]): number {
+  const idx1 = options.indexOf(answer1);
+  const idx2 = options.indexOf(answer2);
+  if (idx1 === -1 || idx2 === -1) return 2; // Unknown answers treated as moderate distance
+  return Math.abs(idx1 - idx2);
 }
 
-function generateBadge(score: number): string {
-  const prefix = score >= 80 ? `${score}% — ` : "";
-  const badge = COMPATIBILITY_BADGES[Math.floor(Math.random() * COMPATIBILITY_BADGES.length)];
-  return prefix + badge;
+// Score alignment questions - similarity is preferred
+function scoreAlignment(distance: number, maxDistance: number): { score: number; rejected: boolean } {
+  if (distance === 0) {
+    // Same answer = perfect alignment
+    return { score: 1.0, rejected: false };
+  } else if (distance === 1) {
+    // Adjacent answer = good alignment
+    return { score: 0.7, rejected: false };
+  } else if (distance === 2) {
+    // Moderate distance = acceptable
+    return { score: 0.3, rejected: false };
+  } else {
+    // Extreme difference = rejection for values
+    return { score: 0, rejected: true };
+  }
+}
+
+// Score complement questions - moderate difference is preferred
+function scoreComplement(distance: number, maxDistance: number): number {
+  if (distance === 0) {
+    // Same = neutral (not bad, not bonus)
+    return 0.5;
+  } else if (distance === 1) {
+    // Slight difference = good balance
+    return 0.9;
+  } else if (distance === 2) {
+    // Moderate difference = ideal complement
+    return 1.0;
+  } else {
+    // Extreme opposite = slight penalty (too different)
+    return 0.3;
+  }
+}
+
+interface CompatibilityResult {
+  score: number;
+  alignmentScore: number;
+  complementScore: number;
+  rejected: boolean;
+  alignmentInsight: string;
+  complementInsight: string;
+  commonHobbies: string[];
+}
+
+function calculateCompatibility(
+  p1: Participant,
+  p2: Participant,
+  ageRange: number,
+  questionConfigs: Map<string, QuestionConfig>
+): CompatibilityResult {
+  const defaultResult: CompatibilityResult = {
+    score: 0,
+    alignmentScore: 0,
+    complementScore: 0,
+    rejected: true,
+    alignmentInsight: "",
+    complementInsight: "",
+    commonHobbies: [],
+  };
+
+  // STEP 1: Hard filters (non-negotiable)
+  if (Math.abs(p1.age - p2.age) > ageRange) return defaultResult;
+  if (!checkOrientationCompatibility(p1, p2)) return defaultResult;
+
+  const p1Answers = new Map(p1.answers.map((a) => [a.question_id, a.answer]));
+  const p2Answers = new Map(p2.answers.map((a) => [a.question_id, a.answer]));
+
+  // STEP 2: Alignment check (must match on values)
+  let alignmentTotal = 0;
+  let alignmentSum = 0;
+  let alignmentRejected = false;
+  let bestAlignmentCategory = "";
+  let bestAlignmentScore = 0;
+
+  for (const [questionId, config] of questionConfigs) {
+    if (!ALIGNMENT_CATEGORIES.includes(config.category)) continue;
+
+    const ans1 = p1Answers.get(questionId);
+    const ans2 = p2Answers.get(questionId);
+    if (!ans1 || !ans2) continue;
+
+    const distance = getAnswerDistance(ans1, ans2, config.options);
+    const maxDistance = config.options.length - 1;
+    const result = scoreAlignment(distance, maxDistance);
+
+    alignmentTotal++;
+    alignmentSum += result.score;
+
+    if (result.rejected) {
+      alignmentRejected = true;
+    }
+
+    if (result.score > bestAlignmentScore) {
+      bestAlignmentScore = result.score;
+      bestAlignmentCategory = config.category;
+    }
+  }
+
+  // Calculate alignment percentage
+  const alignmentScore = alignmentTotal > 0 ? alignmentSum / alignmentTotal : 0;
+
+  // If alignment is below 50% threshold, reject the match
+  if (alignmentScore < 0.5 || alignmentRejected) {
+    return defaultResult;
+  }
+
+  // STEP 3: Complement check (balance preferred)
+  let complementTotal = 0;
+  let complementSum = 0;
+  let bestComplementCategory = "";
+  let bestComplementScore = 0;
+
+  for (const [questionId, config] of questionConfigs) {
+    if (!COMPLEMENT_CATEGORIES.includes(config.category)) continue;
+
+    const ans1 = p1Answers.get(questionId);
+    const ans2 = p2Answers.get(questionId);
+    if (!ans1 || !ans2) continue;
+
+    const distance = getAnswerDistance(ans1, ans2, config.options);
+    const maxDistance = config.options.length - 1;
+    const score = scoreComplement(distance, maxDistance);
+
+    complementTotal++;
+    complementSum += score;
+
+    if (score > bestComplementScore) {
+      bestComplementScore = score;
+      bestComplementCategory = config.category;
+    }
+  }
+
+  const complementScore = complementTotal > 0 ? complementSum / complementTotal : 0.5;
+
+  // STEP 4: Calculate common hobbies (for display only)
+  const commonHobbies = p1.hobbies.filter((h) => p2.hobbies.includes(h));
+
+  // STEP 5: Final score calculation
+  // Alignment: 55% weight (most important)
+  // Complement: 30% weight (balance)
+  // Hobby overlap: 10% weight (shared interests)
+  // Base compatibility: 5% (everyone gets some baseline)
+  
+  const hobbyScore = commonHobbies.length > 0 
+    ? Math.min(commonHobbies.length / 3, 1) 
+    : 0;
+
+  const finalScore = Math.round(
+    alignmentScore * 55 +
+    complementScore * 30 +
+    hobbyScore * 10 +
+    5 // base
+  );
+
+  // Generate insights based on best matches
+  const alignmentInsight = ALIGNMENT_INSIGHTS[
+    Math.floor(Math.random() * ALIGNMENT_INSIGHTS.length)
+  ];
+  const complementInsight = COMPLEMENT_INSIGHTS[
+    Math.floor(Math.random() * COMPLEMENT_INSIGHTS.length)
+  ];
+
+  return {
+    score: Math.min(finalScore, 100),
+    alignmentScore,
+    complementScore,
+    rejected: false,
+    alignmentInsight,
+    complementInsight,
+    commonHobbies,
+  };
+}
+
+function generateBadge(result: CompatibilityResult): string {
+  // Generate a meaningful explanation from alignment + complement insights
+  return `${result.alignmentInsight} ${result.complementInsight}.`;
 }
 
 Deno.serve(async (req) => {
@@ -156,20 +294,33 @@ Deno.serve(async (req) => {
       throw new Error("Event not found");
     }
 
-    // Get questions with categories
+    // Get questions with categories and options
     const { data: questions } = await supabase
       .from("questions")
-      .select("id, category")
+      .select("id, category, options")
       .eq("is_active", true);
 
-    const questionCategories = new Map<string, string>();
+    const questionConfigs = new Map<string, QuestionConfig>();
     if (questions) {
-      questions.forEach((q: { id: string; category: string | null }) => {
-        questionCategories.set(q.id, q.category || "general");
+      questions.forEach((q: { id: string; category: string | null; options: string[] }) => {
+        const category = q.category || "neutral";
+        let type: "alignment" | "complement" | "neutral" = "neutral";
+        
+        if (ALIGNMENT_CATEGORIES.includes(category)) {
+          type = "alignment";
+        } else if (COMPLEMENT_CATEGORIES.includes(category)) {
+          type = "complement";
+        }
+        
+        questionConfigs.set(q.id, {
+          category,
+          type,
+          options: q.options || [],
+        });
       });
     }
 
-    // Get all participants
+    // Get all unmatched participants
     const { data: participants, error: participantsError } = await supabase
       .from("participants")
       .select("*")
@@ -181,35 +332,45 @@ Deno.serve(async (req) => {
     console.log(`Matching ${participants?.length || 0} participants for event ${eventId}`);
 
     const unmatched = [...(participants || [])] as Participant[];
-    const matches: { id: string; matchId: string; score: number }[] = [];
+    const matches: { id: string; matchId: string; score: number; badge: string }[] = [];
 
     // Calculate all compatibility scores
-    const scores: { p1: string; p2: string; score: number }[] = [];
+    const scores: { 
+      p1: string; 
+      p2: string; 
+      result: CompatibilityResult;
+    }[] = [];
 
     for (let i = 0; i < unmatched.length; i++) {
       for (let j = i + 1; j < unmatched.length; j++) {
-        const score = calculateCompatibility(
-          unmatched[i], 
-          unmatched[j], 
+        const result = calculateCompatibility(
+          unmatched[i],
+          unmatched[j],
           event.age_range,
-          questionCategories
+          questionConfigs
         );
-        if (score > 0) {
-          scores.push({ p1: unmatched[i].id, p2: unmatched[j].id, score });
+        
+        if (!result.rejected && result.score > 0) {
+          scores.push({ 
+            p1: unmatched[i].id, 
+            p2: unmatched[j].id, 
+            result 
+          });
         }
       }
     }
 
-    // Sort by score descending
-    scores.sort((a, b) => b.score - a.score);
+    // Sort by score descending (best matches first)
+    scores.sort((a, b) => b.result.score - a.result.score);
 
-    // Greedy matching
+    // Greedy matching - assign highest mutual compatibility first
     const matched = new Set<string>();
 
-    for (const { p1, p2, score } of scores) {
+    for (const { p1, p2, result } of scores) {
       if (!matched.has(p1) && !matched.has(p2)) {
-        matches.push({ id: p1, matchId: p2, score });
-        matches.push({ id: p2, matchId: p1, score });
+        const badge = generateBadge(result);
+        matches.push({ id: p1, matchId: p2, score: result.score, badge });
+        matches.push({ id: p2, matchId: p1, score: result.score, badge });
         matched.add(p1);
         matched.add(p2);
       }
@@ -217,13 +378,12 @@ Deno.serve(async (req) => {
 
     // Update participants with matches
     for (const match of matches) {
-      const badge = generateBadge(match.score);
       await supabase
         .from("participants")
         .update({
           matched_to: match.matchId,
           compatibility_score: match.score,
-          compatibility_badge: badge,
+          compatibility_badge: match.badge,
         })
         .eq("id", match.id);
     }
