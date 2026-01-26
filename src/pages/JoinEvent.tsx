@@ -67,8 +67,8 @@ export default function JoinEvent() {
       }} transition={{
         delay: 0.3
       }} className="font-display text-5xl sm:text-6xl font-bold mb-4">
-          <span className="text-primary">playing</span>
-          <span className="text-primary">cupid
+          <span className="text-primary text-center font-serif text-4xl">playing</span>
+          <span className="text-primary font-serif text-4xl">cupid
         </span>
         </motion.h1>
 
