@@ -77,7 +77,16 @@ export default function WaitingRoom() {
     defaultTime.setMinutes(defaultTime.getMinutes() + 30);
     return defaultTime;
   };
-  return <div className="min-h-screen flex flex-col items-center justify-center p-6">
+  return <div className="min-h-screen flex flex-col items-center justify-center p-6 relative">
+      {/* Back button */}
+      <button
+        onClick={() => navigate("/join")}
+        className="absolute top-6 left-6 text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 text-sm"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        Back
+      </button>
+
       {/* Background effects */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px]" />
