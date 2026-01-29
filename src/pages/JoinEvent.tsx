@@ -120,6 +120,16 @@ export default function JoinEvent() {
             Host an event
           </Button>
         </motion.div>
+
+        {/* Footer credit */}
+        <motion.p 
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }} 
+          transition={{ delay: 0.9 }}
+          className="mt-12 text-xs text-muted-foreground/60"
+        >
+          trying to set u up, have fun - @ajmani
+        </motion.p>
       </motion.div>
     </div>;
 }
