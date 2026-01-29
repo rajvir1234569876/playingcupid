@@ -348,7 +348,16 @@ export default function ProfileForm() {
     return true;
   };
   const isLastQuestion = step === "questions" && currentQuestionIndex === questions.length - 1;
-  return <div className="min-h-screen flex flex-col p-6">
+  return <div className="min-h-screen flex flex-col p-6 relative">
+      {/* Back button */}
+      <button
+        onClick={() => navigate("/join")}
+        className="absolute top-6 left-6 text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 text-sm z-10"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        Back
+      </button>
+
       {/* Background glow */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px]" />
