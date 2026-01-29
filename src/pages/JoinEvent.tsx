@@ -128,7 +128,7 @@ export default function JoinEvent() {
           transition={{ delay: 0.9 }}
           className="mt-12 text-xs text-muted-foreground/60"
         >
-          trying to set u up, have fun - @ajmani
+          trying to set u up, have fun - reniepce
         </motion.p>
       </motion.div>
     </div>;
