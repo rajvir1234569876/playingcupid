@@ -563,7 +563,7 @@ export default function AdminPanel() {
                           )}
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          {genderBreakdown.male} boys · {genderBreakdown.female} girls
+                          {genderBreakdown.male} men · {genderBreakdown.female} women
                           {genderBreakdown.other > 0 && ` · ${genderBreakdown.other} other`}
                         </p>
                       </div>
