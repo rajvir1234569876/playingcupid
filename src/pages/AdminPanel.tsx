@@ -50,6 +50,7 @@ export default function AdminPanel() {
   // Event state
   const [currentEvent, setCurrentEvent] = useState<Event | null>(null);
   const [participantCount, setParticipantCount] = useState(0);
+  const [genderBreakdown, setGenderBreakdown] = useState<{ male: number; female: number; other: number }>({ male: 0, female: 0, other: 0 });
   const [isTriggering, setIsTriggering] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
   const [matchPairs, setMatchPairs] = useState<MatchPair[]>([]);
@@ -134,6 +135,22 @@ export default function AdminPanel() {
       .select("*", { count: "exact", head: true })
       .eq("event_id", eventId);
     setParticipantCount(count || 0);
+    
+    // Fetch gender breakdown
+    const { data: genderData } = await supabase
+      .from("participants")
+      .select("gender")
+      .eq("event_id", eventId);
+    
+    if (genderData) {
+      const breakdown = { male: 0, female: 0, other: 0 };
+      genderData.forEach(p => {
+        if (p.gender.toLowerCase() === "male") breakdown.male++;
+        else if (p.gender.toLowerCase() === "female") breakdown.female++;
+        else breakdown.other++;
+      });
+      setGenderBreakdown(breakdown);
+    }
   };
 
   const fetchMatchPairs = async (eventId: string) => {
@@ -522,11 +539,33 @@ export default function AdminPanel() {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-3 gap-4">
                       <div className="bg-background rounded-lg p-4 text-center">
                         <Users className="w-8 h-8 text-primary mx-auto mb-2" />
                         <p className="text-2xl font-bold">{participantCount}</p>
                         <p className="text-sm text-muted-foreground">Participants</p>
+                      </div>
+                      <div className="bg-background rounded-lg p-4 text-center">
+                        <div className="flex justify-center gap-4 mb-2">
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-3 h-3 rounded-full bg-blue-500" />
+                            <span className="text-lg font-bold">{genderBreakdown.male}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-3 h-3 rounded-full bg-pink-500" />
+                            <span className="text-lg font-bold">{genderBreakdown.female}</span>
+                          </div>
+                          {genderBreakdown.other > 0 && (
+                            <div className="flex items-center gap-1.5">
+                              <div className="w-3 h-3 rounded-full bg-purple-500" />
+                              <span className="text-lg font-bold">{genderBreakdown.other}</span>
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {genderBreakdown.male} boys · {genderBreakdown.female} girls
+                          {genderBreakdown.other > 0 && ` · ${genderBreakdown.other} other`}
+                        </p>
                       </div>
                       <div className="bg-background rounded-lg p-4 text-center">
                         <Clock className="w-8 h-8 text-primary mx-auto mb-2" />
