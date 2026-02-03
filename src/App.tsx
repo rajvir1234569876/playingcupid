@@ -9,6 +9,7 @@ import ProfileForm from "./pages/ProfileForm";
 import WaitingRoom from "./pages/WaitingRoom";
 import RevealPage from "./pages/RevealPage";
 import AdminPanel from "./pages/AdminPanel";
+import CheckMatches from "./pages/CheckMatches";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/waiting/:eventId" element={<WaitingRoom />} />
           <Route path="/reveal/:eventId" element={<RevealPage />} />
           <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/check-matches" element={<CheckMatches />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

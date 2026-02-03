@@ -7,9 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ParticipantResponsesModal } from "@/components/ParticipantResponsesModal";
 
-import { Plus, Users, Play, Clock, Copy, Check, Loader2, LogOut, ArrowLeft, Heart, FileText } from "lucide-react";
+import { Plus, Users, Play, Clock, Copy, Check, Loader2, LogOut, ArrowLeft, Heart, FileText, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -34,6 +35,7 @@ interface ParticipantForModal {
   gender: string;
   orientation: string;
   city: string | null;
+  instagram: string | null;
   hobbies: string[];
   answers: Answer[];
 }
@@ -183,7 +185,7 @@ export default function AdminPanel() {
     try {
       const { data } = await supabase
         .from("participants")
-        .select("id, name, age, gender, orientation, city, hobbies, answers")
+        .select("id, name, age, gender, orientation, city, instagram, hobbies, answers")
         .eq("event_id", eventId)
         .order("created_at", { ascending: true });
       
@@ -199,6 +201,39 @@ export default function AdminPanel() {
       console.error("Error fetching participants:", error);
     } finally {
       setLoadingParticipants(false);
+    }
+  };
+
+  const deleteParticipant = async (participantId: string) => {
+    if (!currentEvent) return;
+    
+    try {
+      const { error } = await supabase
+        .from("participants")
+        .delete()
+        .eq("id", participantId);
+      
+      if (error) throw error;
+      
+      // Update local state
+      setParticipants(prev => prev.filter(p => p.id !== participantId));
+      setParticipantCount(prev => prev - 1);
+      
+      // Update gender breakdown
+      const deletedParticipant = participants.find(p => p.id === participantId);
+      if (deletedParticipant) {
+        setGenderBreakdown(prev => {
+          const gender = deletedParticipant.gender.toLowerCase();
+          if (gender === "male") return { ...prev, male: prev.male - 1 };
+          if (gender === "female") return { ...prev, female: prev.female - 1 };
+          return { ...prev, other: prev.other - 1 };
+        });
+      }
+      
+      toast.success("Response deleted successfully");
+    } catch (error) {
+      console.error("Error deleting participant:", error);
+      toast.error("Failed to delete response");
     }
   };
 
@@ -730,22 +765,49 @@ export default function AdminPanel() {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead className="w-10"></TableHead>
                         <TableHead>Name</TableHead>
-                        <TableHead>Age</TableHead>
                         <TableHead>Gender</TableHead>
                         <TableHead>Orientation</TableHead>
                         <TableHead>City</TableHead>
+                        <TableHead>Instagram</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {participants.map((participant) => (
-                        <TableRow key={participant.id}>
+                        <TableRow key={participant.id} className="group">
+                          <TableCell className="w-10">
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-destructive/10 rounded text-destructive">
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete Response</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to delete this response? This action cannot be undone and the participant will be removed from matching.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => deleteParticipant(participant.id)}
+                                    className="bg-destructive hover:bg-destructive/90"
+                                  >
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </TableCell>
                           <TableCell className="font-medium">{participant.name}</TableCell>
-                          <TableCell>{participant.age}</TableCell>
                           <TableCell>{participant.gender}</TableCell>
                           <TableCell>{participant.orientation}</TableCell>
                           <TableCell>{participant.city || "—"}</TableCell>
+                          <TableCell>{participant.instagram || ""}</TableCell>
                           <TableCell className="text-right">
                             <Button
                               variant="outline"
