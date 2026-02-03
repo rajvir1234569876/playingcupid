@@ -16,6 +16,7 @@ interface ParticipantResponsesModalProps {
     gender: string;
     orientation: string;
     city: string | null;
+    instagram: string | null;
     hobbies: string[];
     answers: Answer[];
   } | null;
@@ -89,13 +90,36 @@ export function ParticipantResponsesModal({
           <DialogTitle className="text-xl">
             {participant.name}'s Responses
           </DialogTitle>
-          <DialogDescription className="flex flex-wrap gap-2 mt-2">
-            <Badge variant="outline">{participant.age} years old</Badge>
-            <Badge variant="outline">{participant.gender}</Badge>
-            <Badge variant="outline">{participant.orientation}</Badge>
-            {participant.city && (
-              <Badge variant="outline">{participant.city}</Badge>
-            )}
+          <DialogDescription asChild>
+            <div className="mt-2 space-y-3">
+              {/* Basic Details Grid */}
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="bg-muted/30 rounded-lg p-3">
+                  <span className="text-muted-foreground block text-xs mb-1">Name</span>
+                  <span className="font-medium">{participant.name}</span>
+                </div>
+                <div className="bg-muted/30 rounded-lg p-3">
+                  <span className="text-muted-foreground block text-xs mb-1">Age</span>
+                  <span className="font-medium">{participant.age} years old</span>
+                </div>
+                <div className="bg-muted/30 rounded-lg p-3">
+                  <span className="text-muted-foreground block text-xs mb-1">Gender</span>
+                  <span className="font-medium">{participant.gender}</span>
+                </div>
+                <div className="bg-muted/30 rounded-lg p-3">
+                  <span className="text-muted-foreground block text-xs mb-1">Sexual Orientation</span>
+                  <span className="font-medium">{participant.orientation}</span>
+                </div>
+                <div className="bg-muted/30 rounded-lg p-3">
+                  <span className="text-muted-foreground block text-xs mb-1">City</span>
+                  <span className="font-medium">{participant.city || "—"}</span>
+                </div>
+                <div className="bg-muted/30 rounded-lg p-3">
+                  <span className="text-muted-foreground block text-xs mb-1">Instagram</span>
+                  <span className="font-medium">{participant.instagram || "—"}</span>
+                </div>
+              </div>
+            </div>
           </DialogDescription>
         </DialogHeader>
 
