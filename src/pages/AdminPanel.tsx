@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ParticipantResponsesModal } from "@/components/ParticipantResponsesModal";
 
-import { Plus, Users, Play, Clock, Copy, Check, Loader2, LogOut, ArrowLeft, Heart, FileText, X } from "lucide-react";
+import { Plus, Users, Play, Clock, Copy, Check, Loader2, LogOut, ArrowLeft, Heart, FileText, X, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -43,7 +43,12 @@ interface ParticipantForModal {
 export default function AdminPanel() {
   const navigate = useNavigate();
 
-  // Auth state
+  // Supabase Auth state
+  const [authUser, setAuthUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  // Event auth state (event code + password)
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authEventCode, setAuthEventCode] = useState("");
   const [authPassword, setAuthPassword] = useState("");
@@ -73,13 +78,54 @@ export default function AdminPanel() {
     adminPassword: ""
   });
 
-  // Check for stored session on mount
+  // Check Supabase Auth on mount
   useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setAuthUser(session.user);
+        // Check admin role
+        const { data: roleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", session.user.id)
+          .eq("role", "admin")
+          .maybeSingle();
+        setIsAdmin(!!roleData);
+        if (!roleData) {
+          await supabase.auth.signOut();
+          toast.error("You do not have admin access");
+          navigate("/admin-login");
+          return;
+        }
+      } else {
+        // Not authenticated via Supabase Auth - redirect to admin login
+        navigate("/admin-login");
+        return;
+      }
+      setAuthLoading(false);
+    };
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT") {
+        setAuthUser(null);
+        setIsAdmin(false);
+        navigate("/admin-login");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  // Check for stored event session on mount
+  useEffect(() => {
+    if (!isAdmin) return;
     const storedEventId = sessionStorage.getItem("admin_event_id");
     if (storedEventId) {
       fetchEventById(storedEventId);
     }
-  }, []);
+  }, [isAdmin]);
 
   // Auto-refresh matches when event is revealed
   useEffect(() => {
@@ -208,19 +254,28 @@ export default function AdminPanel() {
     if (!currentEvent) return;
     
     try {
-      const { error } = await supabase
-        .from("participants")
-        .delete()
-        .eq("id", participantId);
+      // Use admin edge function for server-side verified deletion
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error("Not authenticated");
+        return;
+      }
+
+      const { error } = await supabase.functions.invoke("admin-operations", {
+        body: {
+          action: "delete-participant",
+          participantId,
+          eventId: currentEvent.id,
+        },
+      });
       
       if (error) throw error;
       
       // Update local state
+      const deletedParticipant = participants.find(p => p.id === participantId);
       setParticipants(prev => prev.filter(p => p.id !== participantId));
       setParticipantCount(prev => prev - 1);
       
-      // Update gender breakdown
-      const deletedParticipant = participants.find(p => p.id === participantId);
       if (deletedParticipant) {
         setGenderBreakdown(prev => {
           const gender = deletedParticipant.gender.toLowerCase();
@@ -274,7 +329,8 @@ export default function AdminPanel() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     setIsAuthenticated(false);
     setCurrentEvent(null);
     setAuthEventCode("");
@@ -282,6 +338,7 @@ export default function AdminPanel() {
     setMatchPairs([]);
     setParticipants([]);
     sessionStorage.removeItem("admin_event_id");
+    navigate("/admin-login");
   };
 
   const generateEventCode = () => {
@@ -403,7 +460,16 @@ export default function AdminPanel() {
     setResponsesModalOpen(true);
   };
 
-  // Login screen
+  // Loading auth check
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // Event selection screen (user is authed as admin but no event selected)
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen p-6 flex items-center justify-center">
@@ -417,6 +483,7 @@ export default function AdminPanel() {
           className="relative z-10 w-full max-w-md"
         >
           <div className="flex items-center gap-3 mb-8 justify-center">
+            <Shield className="w-6 h-6 text-primary" />
             <h1 className="font-display text-3xl font-bold text-primary">playingcupid</h1>
           </div>
 
@@ -489,11 +556,11 @@ export default function AdminPanel() {
 
               <Button
                 variant="ghost"
-                onClick={() => navigate("/")}
+                onClick={handleLogout}
                 className="w-full text-muted-foreground"
               >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Home
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
               </Button>
             </CardContent>
           </Card>
