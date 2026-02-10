@@ -2,3 +2,6 @@ project_id = "fgdmyemluzzptwhwglqm"
 
 [functions.run-matching]
 verify_jwt = false
+
+[functions.admin-operations]
+verify_jwt = false

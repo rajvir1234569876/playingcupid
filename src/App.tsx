@@ -8,6 +8,7 @@ import JoinEvent from "./pages/JoinEvent";
 import ProfileForm from "./pages/ProfileForm";
 import WaitingRoom from "./pages/WaitingRoom";
 import RevealPage from "./pages/RevealPage";
+import AdminLogin from "./pages/AdminLogin";
 import AdminPanel from "./pages/AdminPanel";
 import CheckMatches from "./pages/CheckMatches";
 import NotFound from "./pages/NotFound";
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/form/:eventId" element={<ProfileForm />} />
           <Route path="/waiting/:eventId" element={<WaitingRoom />} />
           <Route path="/reveal/:eventId" element={<RevealPage />} />
+          <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/check-matches" element={<CheckMatches />} />
           <Route path="*" element={<NotFound />} />
