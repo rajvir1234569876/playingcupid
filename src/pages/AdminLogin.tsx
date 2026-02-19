@@ -5,60 +5,86 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, ArrowLeft, Shield } from "lucide-react";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { Loader2, ArrowLeft, Shield, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export default function AdminLogin() {
   const navigate = useNavigate();
-  const [isLogin, setIsLogin] = useState(true);
+  const [step, setStep] = useState<"email" | "otp">("email");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [otp, setOtp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleAuth = async (e: React.FormEvent) => {
+  const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim() || !password.trim()) {
-      toast.error("Please enter email and password");
+    if (!email.trim()) {
+      toast.error("Please enter your email");
       return;
     }
     setIsLoading(true);
     try {
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email.trim(),
+        options: {
+          shouldCreateUser: true,
+        },
+      });
+      if (error) throw error;
+      toast.success("Check your email for the login code!");
+      setStep("otp");
+    } catch (error: any) {
+      console.error("OTP error:", error);
+      toast.error(error.message || "Failed to send OTP");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-        // Check admin role
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("Auth failed");
+  const handleVerifyOtp = async () => {
+    if (otp.length !== 6) {
+      toast.error("Please enter the 6-digit code");
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: email.trim(),
+        token: otp,
+        type: "email",
+      });
+      if (error) throw error;
 
+      if (!data.user) throw new Error("Authentication failed");
+
+      // Auto-grant admin role via edge function
+      const { error: grantError } = await supabase.functions.invoke("admin-operations", {
+        body: { action: "auto-grant-admin" },
+      });
+
+      if (grantError) {
+        console.error("Grant error:", grantError);
+        // Check if they already have admin role
         const { data: roleData } = await supabase
           .from("user_roles")
           .select("role")
-          .eq("user_id", user.id)
+          .eq("user_id", data.user.id)
           .eq("role", "admin")
           .maybeSingle();
 
         if (!roleData) {
           await supabase.auth.signOut();
-          toast.error("You do not have admin access");
+          toast.error("Failed to set up admin access");
           return;
         }
-
-        toast.success("Welcome, admin!");
-        navigate("/admin");
-      } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: window.location.origin },
-        });
-        if (error) throw error;
-        toast.success("Check your email to confirm your account. An existing admin must grant you the admin role.");
       }
+
+      toast.success("Welcome, admin!");
+      navigate("/admin");
     } catch (error: any) {
-      console.error("Auth error:", error);
-      toast.error(error.message || "Authentication failed");
+      console.error("Verify error:", error);
+      toast.error(error.message || "Invalid code");
     } finally {
       setIsLoading(false);
     }
@@ -82,70 +108,103 @@ export default function AdminLogin() {
 
         <Card className="bg-card border-border">
           <CardHeader>
-            <CardTitle>{isLogin ? "Sign In" : "Sign Up"}</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Mail className="w-5 h-5" />
+              {step === "email" ? "Enter Your Email" : "Enter Verification Code"}
+            </CardTitle>
             <CardDescription>
-              {isLogin
-                ? "Sign in with your admin account"
-                : "Create an account (admin role must be granted separately)"}
+              {step === "email"
+                ? "We'll send you a one-time code to sign in"
+                : `We sent a 6-digit code to ${email}`}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleAuth} className="space-y-4">
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="admin@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="bg-card border-border"
-                />
-              </div>
-              <div>
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="bg-card border-border"
-                  onKeyDown={(e) => e.key === "Enter" && handleAuth(e)}
-                />
-              </div>
-              <Button type="submit" disabled={isLoading} className="w-full bg-primary hover:bg-primary/90">
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    {isLogin ? "Signing in..." : "Signing up..."}
-                  </>
-                ) : isLogin ? (
-                  "Sign In"
-                ) : (
-                  "Sign Up"
-                )}
-              </Button>
+            {step === "email" ? (
+              <form onSubmit={handleSendOtp} className="space-y-4">
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="bg-card border-border"
+                    autoFocus
+                  />
+                </div>
+                <Button type="submit" disabled={isLoading} className="w-full bg-primary hover:bg-primary/90">
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Sending code...
+                    </>
+                  ) : (
+                    "Send Login Code"
+                  )}
+                </Button>
 
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setIsLogin(!isLogin)}
-                className="w-full text-muted-foreground"
-              >
-                {isLogin ? "Need an account? Sign up" : "Already have an account? Sign in"}
-              </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => navigate("/")}
+                  className="w-full text-muted-foreground"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Home
+                </Button>
+              </form>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex justify-center">
+                  <InputOTP maxLength={6} value={otp} onChange={setOtp}>
+                    <InputOTPGroup>
+                      <InputOTPSlot index={0} />
+                      <InputOTPSlot index={1} />
+                      <InputOTPSlot index={2} />
+                      <InputOTPSlot index={3} />
+                      <InputOTPSlot index={4} />
+                      <InputOTPSlot index={5} />
+                    </InputOTPGroup>
+                  </InputOTP>
+                </div>
 
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => navigate("/")}
-                className="w-full text-muted-foreground"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Home
-              </Button>
-            </form>
+                <Button
+                  onClick={handleVerifyOtp}
+                  disabled={isLoading || otp.length !== 6}
+                  className="w-full bg-primary hover:bg-primary/90"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Verifying...
+                    </>
+                  ) : (
+                    "Verify & Sign In"
+                  )}
+                </Button>
+
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => { setStep("email"); setOtp(""); }}
+                    className="flex-1 text-muted-foreground"
+                  >
+                    Change email
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={handleSendOtp}
+                    disabled={isLoading}
+                    className="flex-1 text-muted-foreground"
+                  >
+                    Resend code
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </motion.div>

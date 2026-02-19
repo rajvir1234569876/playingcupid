@@ -32,19 +32,58 @@ Deno.serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } =
-      await supabaseUser.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
+    // Get user from token
+    const { data: { user }, error: userError } = await supabaseUser.auth.getUser();
+    if (userError || !user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const userId = claimsData.claims.sub;
+    const userId = user.id;
+    const { action, ...params } = await req.json();
 
-    // Check admin role
+    // Special action: auto-grant admin role (self-grant on first login)
+    if (action === "auto-grant-admin") {
+      // Check if user already has admin role
+      const { data: existingRole } = await supabaseAdmin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (existingRole) {
+        return new Response(
+          JSON.stringify({ success: true, message: "Already admin" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Grant admin role
+      const { error: insertError } = await supabaseAdmin
+        .from("user_roles")
+        .insert({ user_id: userId, role: "admin" });
+
+      if (insertError) throw insertError;
+
+      // Log the action
+      await supabaseAdmin.from("admin_audit_log").insert({
+        admin_user_id: userId,
+        action: "self-grant-admin",
+        target_type: "user",
+        target_id: userId,
+        metadata: { email: user.email },
+      });
+
+      return new Response(
+        JSON.stringify({ success: true, message: "Admin role granted" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // For all other actions, require existing admin role
     const { data: roleData } = await supabaseAdmin
       .from("user_roles")
       .select("role")
@@ -59,8 +98,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { action, ...params } = await req.json();
-
     switch (action) {
       case "delete-participant": {
         const { participantId, eventId } = params;
@@ -71,7 +108,6 @@ Deno.serve(async (req) => {
           );
         }
 
-        // Verify participant belongs to the event
         const { data: participant } = await supabaseAdmin
           .from("participants")
           .select("id, name, event_id")
@@ -86,7 +122,6 @@ Deno.serve(async (req) => {
           );
         }
 
-        // Delete the participant
         const { error: deleteError } = await supabaseAdmin
           .from("participants")
           .delete()
@@ -94,7 +129,6 @@ Deno.serve(async (req) => {
 
         if (deleteError) throw deleteError;
 
-        // Log the action
         await supabaseAdmin.from("admin_audit_log").insert({
           admin_user_id: userId,
           action: "delete",
@@ -105,6 +139,31 @@ Deno.serve(async (req) => {
 
         return new Response(
           JSON.stringify({ success: true }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      case "list-all-events": {
+        const { data: events, error: eventsError } = await supabaseAdmin
+          .from("events")
+          .select("id, name, code, status, created_at, reveal_time")
+          .order("created_at", { ascending: false });
+
+        if (eventsError) throw eventsError;
+
+        // Get participant counts for each event
+        const eventsWithCounts = await Promise.all(
+          (events || []).map(async (event) => {
+            const { count } = await supabaseAdmin
+              .from("participants")
+              .select("*", { count: "exact", head: true })
+              .eq("event_id", event.id);
+            return { ...event, participant_count: count || 0 };
+          })
+        );
+
+        return new Response(
+          JSON.stringify({ events: eventsWithCounts }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }

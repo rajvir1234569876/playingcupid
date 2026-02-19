@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ParticipantResponsesModal } from "@/components/ParticipantResponsesModal";
 
-import { Plus, Users, Play, Clock, Copy, Check, Loader2, LogOut, ArrowLeft, Heart, FileText, X, Shield } from "lucide-react";
+import { Plus, Users, Play, Clock, Copy, Check, Loader2, LogOut, ArrowLeft, Heart, FileText, X, Shield, Globe } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -67,6 +67,10 @@ export default function AdminPanel() {
   const [loadingParticipants, setLoadingParticipants] = useState(false);
   const [selectedParticipant, setSelectedParticipant] = useState<ParticipantForModal | null>(null);
   const [responsesModalOpen, setResponsesModalOpen] = useState(false);
+
+  // All events state
+  const [allEvents, setAllEvents] = useState<any[]>([]);
+  const [loadingAllEvents, setLoadingAllEvents] = useState(false);
 
   // Create event state
   const [activeTab, setActiveTab] = useState("manage");
@@ -148,6 +152,13 @@ export default function AdminPanel() {
   }, [currentEvent?.id, currentEvent?.status]);
 
   // Fetch participants when responses tab is selected
+  // Fetch all events when tab selected
+  useEffect(() => {
+    if (activeTab === "all-events" && isAdmin) {
+      fetchAllEvents();
+    }
+  }, [activeTab, isAdmin]);
+
   useEffect(() => {
     if (activeTab === "responses" && currentEvent) {
       fetchParticipants(currentEvent.id);
@@ -224,6 +235,26 @@ export default function AdminPanel() {
       }
     }
     setMatchPairs(pairs);
+  };
+
+  const fetchAllEvents = async () => {
+    setLoadingAllEvents(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { data, error } = await supabase.functions.invoke("admin-operations", {
+        body: { action: "list-all-events" },
+      });
+
+      if (error) throw error;
+      setAllEvents(data?.events || []);
+    } catch (error) {
+      console.error("Error fetching all events:", error);
+      toast.error("Failed to load events");
+    } finally {
+      setLoadingAllEvents(false);
+    }
   };
 
   const fetchParticipants = async (eventId: string) => {
@@ -606,6 +637,10 @@ export default function AdminPanel() {
               Responses
             </TabsTrigger>
             <TabsTrigger value="create">Create New</TabsTrigger>
+            <TabsTrigger value="all-events">
+              <Globe className="w-4 h-4 mr-1" />
+              All Events
+            </TabsTrigger>
           </TabsList>
 
           {/* Manage current event */}
@@ -981,6 +1016,80 @@ export default function AdminPanel() {
                     </>
                   )}
                 </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* All Events Tab */}
+          <TabsContent value="all-events">
+            <Card className="bg-card border-border">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Globe className="w-5 h-5 text-primary" />
+                  All Hosted Events
+                </CardTitle>
+                <CardDescription>Overview of every event on the platform</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {loadingAllEvents ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                  </div>
+                ) : allEvents.length > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Event Name</TableHead>
+                        <TableHead>Code</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-center">Participants</TableHead>
+                        <TableHead>Created</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {allEvents.map((event) => (
+                        <TableRow key={event.id}>
+                          <TableCell className="font-medium">{event.name}</TableCell>
+                          <TableCell className="font-mono text-sm">{event.code}</TableCell>
+                          <TableCell>
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                                event.status === "waiting"
+                                  ? "bg-yellow-500/20 text-yellow-600"
+                                  : event.status === "matching"
+                                  ? "bg-blue-500/20 text-blue-600"
+                                  : "bg-green-500/20 text-green-600"
+                              }`}
+                            >
+                              {event.status}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-center">{event.participant_count}</TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {new Date(event.created_at).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                fetchEventById(event.id);
+                                setActiveTab("manage");
+                              }}
+                            >
+                              Manage
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No events found.
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
