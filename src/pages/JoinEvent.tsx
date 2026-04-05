@@ -144,7 +144,7 @@ export default function JoinEvent() {
         >
           <Button
             variant="ghost"
-            onClick={() => navigate("/admin-login")}
+            onClick={() => navigate("/admin")}
             className="text-muted-foreground hover:text-foreground"
           >
             <Users className="w-4 h-4 mr-2" />

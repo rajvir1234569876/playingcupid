@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ParticipantResponsesModal } from "@/components/ParticipantResponsesModal";
 
-import { Plus, Users, Play, Clock, Copy, Check, Loader2, LogOut, ArrowLeft, Heart, FileText, X, Shield, Globe } from "lucide-react";
+import { Plus, Users, Play, Clock, Copy, Check, Loader2, LogOut, ArrowLeft, Heart, FileText, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -43,12 +43,7 @@ interface ParticipantForModal {
 export default function AdminPanel() {
   const navigate = useNavigate();
 
-  // Supabase Auth state
-  const [authUser, setAuthUser] = useState<any>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [authLoading, setAuthLoading] = useState(true);
-
-  // Event auth state (event code + password)
+  // Auth state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authEventCode, setAuthEventCode] = useState("");
   const [authPassword, setAuthPassword] = useState("");
@@ -68,10 +63,6 @@ export default function AdminPanel() {
   const [selectedParticipant, setSelectedParticipant] = useState<ParticipantForModal | null>(null);
   const [responsesModalOpen, setResponsesModalOpen] = useState(false);
 
-  // All events state
-  const [allEvents, setAllEvents] = useState<any[]>([]);
-  const [loadingAllEvents, setLoadingAllEvents] = useState(false);
-
   // Create event state
   const [activeTab, setActiveTab] = useState("manage");
   const [isCreating, setIsCreating] = useState(false);
@@ -82,54 +73,13 @@ export default function AdminPanel() {
     adminPassword: ""
   });
 
-  // Check Supabase Auth on mount
+  // Check for stored session on mount
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        setAuthUser(session.user);
-        // Check admin role
-        const { data: roleData } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", session.user.id)
-          .eq("role", "admin")
-          .maybeSingle();
-        setIsAdmin(!!roleData);
-        if (!roleData) {
-          await supabase.auth.signOut();
-          toast.error("You do not have admin access");
-          navigate("/admin-login");
-          return;
-        }
-      } else {
-        // Not authenticated via Supabase Auth - redirect to admin login
-        navigate("/admin-login");
-        return;
-      }
-      setAuthLoading(false);
-    };
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_OUT") {
-        setAuthUser(null);
-        setIsAdmin(false);
-        navigate("/admin-login");
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
-
-  // Check for stored event session on mount
-  useEffect(() => {
-    if (!isAdmin) return;
     const storedEventId = sessionStorage.getItem("admin_event_id");
     if (storedEventId) {
       fetchEventById(storedEventId);
     }
-  }, [isAdmin]);
+  }, []);
 
   // Auto-refresh matches when event is revealed
   useEffect(() => {
@@ -152,13 +102,6 @@ export default function AdminPanel() {
   }, [currentEvent?.id, currentEvent?.status]);
 
   // Fetch participants when responses tab is selected
-  // Fetch all events when tab selected
-  useEffect(() => {
-    if (activeTab === "all-events" && isAdmin) {
-      fetchAllEvents();
-    }
-  }, [activeTab, isAdmin]);
-
   useEffect(() => {
     if (activeTab === "responses" && currentEvent) {
       fetchParticipants(currentEvent.id);
@@ -237,26 +180,6 @@ export default function AdminPanel() {
     setMatchPairs(pairs);
   };
 
-  const fetchAllEvents = async () => {
-    setLoadingAllEvents(true);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
-
-      const { data, error } = await supabase.functions.invoke("admin-operations", {
-        body: { action: "list-all-events" },
-      });
-
-      if (error) throw error;
-      setAllEvents(data?.events || []);
-    } catch (error) {
-      console.error("Error fetching all events:", error);
-      toast.error("Failed to load events");
-    } finally {
-      setLoadingAllEvents(false);
-    }
-  };
-
   const fetchParticipants = async (eventId: string) => {
     setLoadingParticipants(true);
     try {
@@ -285,28 +208,19 @@ export default function AdminPanel() {
     if (!currentEvent) return;
     
     try {
-      // Use admin edge function for server-side verified deletion
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast.error("Not authenticated");
-        return;
-      }
-
-      const { error } = await supabase.functions.invoke("admin-operations", {
-        body: {
-          action: "delete-participant",
-          participantId,
-          eventId: currentEvent.id,
-        },
-      });
+      const { error } = await supabase
+        .from("participants")
+        .delete()
+        .eq("id", participantId);
       
       if (error) throw error;
       
       // Update local state
-      const deletedParticipant = participants.find(p => p.id === participantId);
       setParticipants(prev => prev.filter(p => p.id !== participantId));
       setParticipantCount(prev => prev - 1);
       
+      // Update gender breakdown
+      const deletedParticipant = participants.find(p => p.id === participantId);
       if (deletedParticipant) {
         setGenderBreakdown(prev => {
           const gender = deletedParticipant.gender.toLowerCase();
@@ -360,8 +274,7 @@ export default function AdminPanel() {
     }
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
+  const handleLogout = () => {
     setIsAuthenticated(false);
     setCurrentEvent(null);
     setAuthEventCode("");
@@ -369,7 +282,6 @@ export default function AdminPanel() {
     setMatchPairs([]);
     setParticipants([]);
     sessionStorage.removeItem("admin_event_id");
-    navigate("/admin-login");
   };
 
   const generateEventCode = () => {
@@ -491,16 +403,7 @@ export default function AdminPanel() {
     setResponsesModalOpen(true);
   };
 
-  // Loading auth check
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  // Event selection screen (user is authed as admin but no event selected)
+  // Login screen
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen p-6 flex items-center justify-center">
@@ -514,7 +417,6 @@ export default function AdminPanel() {
           className="relative z-10 w-full max-w-md"
         >
           <div className="flex items-center gap-3 mb-8 justify-center">
-            <Shield className="w-6 h-6 text-primary" />
             <h1 className="font-display text-3xl font-bold text-primary">playingcupid</h1>
           </div>
 
@@ -587,11 +489,11 @@ export default function AdminPanel() {
 
               <Button
                 variant="ghost"
-                onClick={handleLogout}
+                onClick={() => navigate("/")}
                 className="w-full text-muted-foreground"
               >
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Home
               </Button>
             </CardContent>
           </Card>
@@ -637,10 +539,6 @@ export default function AdminPanel() {
               Responses
             </TabsTrigger>
             <TabsTrigger value="create">Create New</TabsTrigger>
-            <TabsTrigger value="all-events">
-              <Globe className="w-4 h-4 mr-1" />
-              All Events
-            </TabsTrigger>
           </TabsList>
 
           {/* Manage current event */}
@@ -1016,80 +914,6 @@ export default function AdminPanel() {
                     </>
                   )}
                 </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* All Events Tab */}
-          <TabsContent value="all-events">
-            <Card className="bg-card border-border">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Globe className="w-5 h-5 text-primary" />
-                  All Hosted Events
-                </CardTitle>
-                <CardDescription>Overview of every event on the platform</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {loadingAllEvents ? (
-                  <div className="flex items-center justify-center py-12">
-                    <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                  </div>
-                ) : allEvents.length > 0 ? (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Event Name</TableHead>
-                        <TableHead>Code</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-center">Participants</TableHead>
-                        <TableHead>Created</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {allEvents.map((event) => (
-                        <TableRow key={event.id}>
-                          <TableCell className="font-medium">{event.name}</TableCell>
-                          <TableCell className="font-mono text-sm">{event.code}</TableCell>
-                          <TableCell>
-                            <span
-                              className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                                event.status === "waiting"
-                                  ? "bg-yellow-500/20 text-yellow-600"
-                                  : event.status === "matching"
-                                  ? "bg-blue-500/20 text-blue-600"
-                                  : "bg-green-500/20 text-green-600"
-                              }`}
-                            >
-                              {event.status}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-center">{event.participant_count}</TableCell>
-                          <TableCell className="text-sm text-muted-foreground">
-                            {new Date(event.created_at).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                fetchEventById(event.id);
-                                setActiveTab("manage");
-                              }}
-                            >
-                              Manage
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No events found.
-                  </div>
-                )}
               </CardContent>
             </Card>
           </TabsContent>
