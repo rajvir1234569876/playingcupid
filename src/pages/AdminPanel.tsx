@@ -505,6 +505,15 @@ export default function AdminPanel() {
   // Authenticated view
   return (
     <div className="min-h-screen p-6">
+      <Button
+        variant="ghost"
+        onClick={() => navigate("/")}
+        className="absolute top-4 left-4 gap-2 text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back
+      </Button>
+
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-1/4 right-1/4 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px]" />
       </div>

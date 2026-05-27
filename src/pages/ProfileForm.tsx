@@ -29,8 +29,8 @@ export default function ProfileForm() {
   // Form data
   const [formData, setFormData] = useState({
     name: "",
-    age: "",
-    city: "",
+    age: "17",
+    city: "Delhi",
     instagram: "",
     gender: "",
     orientation: "",

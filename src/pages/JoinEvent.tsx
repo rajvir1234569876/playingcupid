@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sparkles, ArrowRight, Users, Heart } from "lucide-react";
+import { Sparkles, ArrowRight, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { saveEventCode } from "@/lib/session";
@@ -47,6 +47,15 @@ export default function JoinEvent() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6">
+      <Button
+        variant="ghost"
+        onClick={() => navigate("/")}
+        className="absolute top-4 left-4 gap-2 text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back
+      </Button>
+
       {/* Background glow */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px]" />
@@ -118,46 +127,12 @@ export default function JoinEvent() {
           </Button>
         </motion.form>
 
-        {/* Check Matches button */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="mt-6"
-        >
-          <Button
-            variant="outline"
-            onClick={() => navigate("/check-matches")}
-            className="w-full gap-2"
-          >
-            <Heart className="w-4 h-4" />
-            Check Matches
-          </Button>
-        </motion.div>
-
-        {/* Host link */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
-          className="mt-4"
-        >
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/admin")}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <Users className="w-4 h-4 mr-2" />
-            Host an event
-          </Button>
-        </motion.div>
-
         {/* Footer credit */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.9 }}
-          className="mt-12 text-xs text-muted-foreground/60"
+          className="mt-8 text-xs text-muted-foreground/60"
         >
           trying to set u up, have fun - reniepce
         </motion.p>
