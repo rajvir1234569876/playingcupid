@@ -407,6 +407,15 @@ export default function AdminPanel() {
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen p-6 flex items-center justify-center">
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/")}
+          className="absolute top-4 left-4 gap-2 text-white hover:text-white/80"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </Button>
+
         <div className="fixed inset-0 pointer-events-none">
           <div className="absolute top-1/4 right-1/4 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px]" />
         </div>
@@ -487,14 +496,6 @@ export default function AdminPanel() {
                 Create New Event
               </Button>
 
-              <Button
-                variant="ghost"
-                onClick={() => navigate("/")}
-                className="w-full text-muted-foreground"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Home
-              </Button>
             </CardContent>
           </Card>
         </motion.div>
@@ -508,7 +509,7 @@ export default function AdminPanel() {
       <Button
         variant="ghost"
         onClick={() => navigate("/")}
-        className="absolute top-4 left-4 gap-2 text-muted-foreground hover:text-foreground"
+        className="absolute top-4 left-4 gap-2 text-white hover:text-white/80"
       >
         <ArrowLeft className="w-4 h-4" />
         Back

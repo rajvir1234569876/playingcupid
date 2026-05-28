@@ -125,7 +125,7 @@ export default function CheckMatches() {
       <Button
         variant="ghost"
         onClick={() => navigate("/")}
-        className="absolute top-4 left-4 gap-2 text-muted-foreground hover:text-foreground"
+        className="absolute top-4 left-4 gap-2 text-white hover:text-white/80"
       >
         <ArrowLeft className="w-4 h-4" />
         Back
@@ -149,11 +149,10 @@ export default function CheckMatches() {
           transition={{ delay: 0.2 }}
           className="mb-8"
         >
-          <h1 className="font-display text-4xl font-bold mb-2">
-            <span className="text-primary font-serif">Check</span>{" "}
-            <span className="text-primary font-serif">Matches</span>
+          <h1 className="font-display text-4xl font-bold mb-2 text-white">
+            Check Matches
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-white">
             Enter your event code and name to view your match
           </p>
         </motion.div>
@@ -186,7 +185,7 @@ export default function CheckMatches() {
                         placeholder="eg. XXXXXX"
                         value={eventCode}
                         onChange={(e) => setEventCode(e.target.value.toUpperCase())}
-                        className="text-center font-mono tracking-wider uppercase"
+                        className="text-center font-mono tracking-wider uppercase bg-primary/50 border-primary/60 text-[#1A0800] placeholder:text-[#1A0800]/60"
                         maxLength={10}
                       />
                     </div>
@@ -197,7 +196,7 @@ export default function CheckMatches() {
                         placeholder="Enter your name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        className="text-center"
+                        className="text-center bg-primary/50 border-primary/60 text-[#1A0800] placeholder:text-[#1A0800]/60"
                       />
                     </div>
                     <Button
@@ -353,22 +352,6 @@ export default function CheckMatches() {
           )}
         </AnimatePresence>
 
-        {/* Back button */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="mt-8"
-        >
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/join")}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
-          </Button>
-        </motion.div>
       </motion.div>
     </div>
   );

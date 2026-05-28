@@ -50,7 +50,7 @@ export default function JoinEvent() {
       <Button
         variant="ghost"
         onClick={() => navigate("/")}
-        className="absolute top-4 left-4 gap-2 text-muted-foreground hover:text-foreground"
+        className="absolute top-4 left-4 gap-2 text-white hover:text-white/80"
       >
         <ArrowLeft className="w-4 h-4" />
         Back
@@ -132,7 +132,7 @@ export default function JoinEvent() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.9 }}
-          className="mt-8 text-xs text-muted-foreground/60"
+          className="mt-8 text-xs text-white/60"
         >
           trying to set u up, have fun - reniepce
         </motion.p>
