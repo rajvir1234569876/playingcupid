@@ -15,32 +15,22 @@ export default {
   	extend: {
   		fontFamily: {
   			display: [
-  				'Playfair Display',
-  				'serif'
+  				'Baloo 2',
+  				'system-ui',
+  				'sans-serif'
   			],
   			sans: [
-  				'Roboto',
+  				'Nunito',
   				'ui-sans-serif',
   				'system-ui',
-  				'-apple-system',
-  				'BlinkMacSystemFont',
-  				'Segoe UI',
-  				'Helvetica Neue',
-  				'Arial',
-  				'Noto Sans',
   				'sans-serif'
   			],
   			serif: [
-  				'Libre Caslon Text',
-  				'ui-serif',
-  				'Georgia',
-  				'Cambria',
-  				'Times New Roman',
-  				'Times',
-  				'serif'
+  				'Baloo 2',
+  				'system-ui',
+  				'sans-serif'
   			],
   			mono: [
-  				'Roboto Mono',
   				'ui-monospace',
   				'SFMono-Regular',
   				'Menlo',

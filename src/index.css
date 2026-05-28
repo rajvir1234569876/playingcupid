@@ -2,97 +2,79 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Meetup Design System - Warm Romantic Theme */
-
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
-
-@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
-
-@import url("https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&display=swap");
-
-@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap");
+/* playingcupid — Bold Red Theme */
 
 @layer base {
   :root {
-    /* Cream Vanilla palette */
-    --background: 30 33% 91%; /* #EFE6DE */
-    --foreground: 0 100% 30%; /* Cherry Cola #9A0002 */
+    /* Core palette */
+    --background: 357 86% 46%;     /* #DC1019 red */
+    --foreground: 0 0% 10%;        /* #1A1A1A near-black */
 
-    --card: 30 30% 95%;
-    --card-foreground: 0 100% 30%;
+    --card: 43 77% 93%;            /* #FBF3E0 cream */
+    --card-foreground: 0 0% 10%;
 
-    --popover: 30 25% 90%;
-    --popover-foreground: 0 100% 30%;
+    --popover: 43 77% 93%;
+    --popover-foreground: 0 0% 10%;
 
-    /* Cherry Cola primary */
-    --primary: 0 100% 30%; /* #9A0002 */
-    --primary-foreground: 30 33% 91%; /* Cream for text on primary */
+    --primary: 357 86% 46%;        /* #DC1019 red */
+    --primary-foreground: 43 77% 93%;
 
     /* Question card colors */
-    --question-bg: 0 100% 30%; /* Cherry red */
-    --question-text: 54 100% 65%; /* Yellow #FFEF4D */
+    --question-bg: 357 86% 46%;
+    --question-text: 54 100% 65%;  /* yellow accent */
 
-    /* Deep secondary */
-    --secondary: 0 50% 20%;
-    --secondary-foreground: 30 33% 91%;
+    --secondary: 43 77% 85%;       /* muted cream */
+    --secondary-foreground: 0 0% 10%;
 
-    /* Muted tones */
-    --muted: 30 20% 70%;
-    --muted-foreground: 0 50% 35%;
+    --muted: 43 40% 82%;
+    --muted-foreground: 0 0% 30%;
 
-    /* Champagne gold accent */
-    --accent: 38 70% 65%;
-    --accent-foreground: 0 100% 30%;
+    --accent: 43 77% 85%;
+    --accent-foreground: 0 0% 10%;
 
     --destructive: 0 72% 50%;
-    --destructive-foreground: 0 85% 97%;
+    --destructive-foreground: 43 77% 93%;
 
-    --border: 30 20% 80%;
-    --input: 30 20% 85%;
-    --ring: 0 100% 30%;
+    --border: 0 0% 10%;            /* #1A1A1A outlines */
+    --input: 43 50% 88%;
+    --ring: 357 86% 46%;
 
-    --radius: 1rem;
+    --radius: 0.25rem;             /* sharp corners to match card style */
 
     /* Custom tokens */
-    --glow-rose: 350 75% 60%;
-    --glow-gold: 38 70% 65%;
-    --midnight: 0 100% 20%;
-    --deep-purple: 0 80% 25%;
-    --soft-pink: 350 60% 75%;
-    --champagne: 38 70% 65%;
-    --cream: 30 33% 91%;
-    --cherry: 0 100% 30%;
+    --cream: 43 77% 93%;
+    --cherry: 357 86% 46%;
     --yellow: 54 100% 65%;
-
-    /* Gradients */
-    --gradient-romantic: linear-gradient(135deg, hsl(0 100% 30% / 0.1), hsl(30 33% 91% / 0.8));
-    --gradient-card: linear-gradient(180deg, hsl(30 30% 95%), hsl(30 33% 91%));
-    --gradient-glow: radial-gradient(circle at center, hsl(0 100% 30% / 0.1), transparent 70%);
-    --gradient-gold: linear-gradient(135deg, hsl(38 70% 65%), hsl(38 80% 55%));
-    --gradient-hero: linear-gradient(180deg, hsl(30 33% 91%), hsl(30 28% 88%));
+    --near-black: 0 0% 10%;
+    --champagne: 43 77% 85%;
+    --soft-pink: 357 50% 75%;
+    --glow-rose: 357 75% 60%;
+    --glow-gold: 38 70% 65%;
+    --midnight: 0 0% 10%;
+    --deep-purple: 0 0% 15%;
 
     /* Shadows */
-    --shadow-glow: 0 0 60px hsl(0 100% 30% / 0.15);
-    --shadow-card: 0 8px 32px hsl(0 0% 0% / 0.1);
-    --shadow-button: 0 4px 20px hsl(0 100% 30% / 0.25);
+    --shadow-glow: 0 0 60px hsl(357 86% 46% / 0.3);
+    --shadow-card: 5px 5px 0px hsl(0 0% 10%);
+    --shadow-button: 4px 4px 0px hsl(0 0% 10%);
 
-    --sidebar-background: 30 30% 95%;
-    --sidebar-foreground: 0 100% 30%;
-    --sidebar-primary: 0 100% 30%;
-    --sidebar-primary-foreground: 30 33% 91%;
-    --sidebar-accent: 38 70% 65%;
-    --sidebar-accent-foreground: 0 100% 30%;
-    --sidebar-border: 30 20% 80%;
-    --sidebar-ring: 0 100% 30%;
-    --chart-1: 0 100% 40%;
-    --chart-2: 38 70% 60%;
+    --sidebar-background: 43 77% 93%;
+    --sidebar-foreground: 0 0% 10%;
+    --sidebar-primary: 357 86% 46%;
+    --sidebar-primary-foreground: 43 77% 93%;
+    --sidebar-accent: 43 77% 85%;
+    --sidebar-accent-foreground: 0 0% 10%;
+    --sidebar-border: 0 0% 10%;
+    --sidebar-ring: 357 86% 46%;
+    --chart-1: 357 86% 46%;
+    --chart-2: 43 77% 70%;
     --chart-3: 54 100% 65%;
-    --chart-4: 0 80% 50%;
-    --chart-5: 30 30% 60%;
-    --sidebar: 30 30% 95%;
-    --font-sans: 'Roboto', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
-    --font-serif: 'Libre Caslon Text', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
-    --font-mono: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    --chart-4: 357 60% 55%;
+    --chart-5: 43 40% 60%;
+    --sidebar: 43 77% 93%;
+    --font-display: 'Baloo 2', system-ui, sans-serif;
+    --font-sans: 'Nunito', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
     --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
     --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
     --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
@@ -117,20 +99,19 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Nunito', ui-sans-serif, system-ui, sans-serif;
     background: hsl(var(--background));
     min-height: 100vh;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Playfair Display', serif;
-    color: hsl(var(--primary));
+    font-family: 'Baloo 2', system-ui, sans-serif;
   }
 }
 
 @layer components {
   .glass-card {
-    @apply bg-card/90 backdrop-blur-xl border border-border/50 rounded-2xl;
+    @apply bg-card border-[3px] border-border rounded-sm;
     box-shadow: var(--shadow-card);
   }
 
