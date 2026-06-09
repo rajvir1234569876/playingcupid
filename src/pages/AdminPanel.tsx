@@ -854,7 +854,7 @@ export default function AdminPanel() {
                   <Label htmlFor="eventName">Event Name</Label>
                   <Input
                     id="eventName"
-                    placeholder="Valentine's Night 2024"
+                    placeholder="Party Night"
                     value={newEvent.name}
                     onChange={e => setNewEvent(prev => ({ ...prev, name: e.target.value }))}
                     className="bg-card border-border"
