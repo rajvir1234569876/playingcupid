@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,10 +12,11 @@ export default function JoinEvent() {
   const [eventCode, setEventCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const handleJoin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!eventCode.trim()) {
+  const performJoin = async (code: string) => {
+    const normalised = code.toUpperCase().trim();
+    if (!normalised) {
       toast.error("Please enter an event code");
       return;
     }
@@ -24,7 +25,7 @@ export default function JoinEvent() {
       const { data: event, error } = await supabase
         .from("events")
         .select("*")
-        .eq("code", eventCode.toUpperCase().trim())
+        .eq("code", normalised)
         .maybeSingle();
       if (error) throw error;
       if (!event) {
@@ -43,6 +44,20 @@ export default function JoinEvent() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Auto-join when ?code= param is present (QR scan flow)
+  useEffect(() => {
+    const code = searchParams.get("code");
+    if (code) {
+      setEventCode(code.toUpperCase());
+      performJoin(code);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleJoin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await performJoin(eventCode);
   };
 
   return (

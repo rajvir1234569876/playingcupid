@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ParticipantResponsesModal } from "@/components/ParticipantResponsesModal";
+import { QRCodeCard } from "@/components/QRCodeCard";
 
 import { Plus, Users, Play, Clock, Copy, Check, Loader2, LogOut, ArrowLeft, Heart, FileText, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -624,6 +625,9 @@ export default function AdminPanel() {
                         <p className="text-sm text-muted-foreground">Reveal Time</p>
                       </div>
                     </div>
+
+                    {/* QR Code */}
+                    <QRCodeCard eventCode={currentEvent.code} />
 
                     {/* Age Range Configuration */}
                     {currentEvent.status === "waiting" && (
