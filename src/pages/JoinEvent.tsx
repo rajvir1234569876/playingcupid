@@ -89,15 +89,15 @@ export default function JoinEvent() {
           transition={{ delay: 0.3 }}
           className="font-display text-5xl sm:text-6xl font-bold mb-4"
         >
-          <span className="text-primary text-center font-serif text-4xl">playing</span>
-          <span className="text-primary font-serif text-4xl">cupid</span>
+          <span className="text-white text-center font-serif text-4xl">playing</span>
+          <span className="text-white font-serif text-4xl">cupid</span>
         </motion.h1>
 
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="text-lg mb-10 text-primary"
+          className="text-lg mb-10 text-white"
         >
           One event. One match. One moment.
         </motion.p>
@@ -112,7 +112,7 @@ export default function JoinEvent() {
         >
           <div className="flex items-center gap-2 justify-center mb-6 text-champagne">
             <Sparkles className="w-5 h-5 text-primary-foreground" />
-            <span className="text-sm font-medium uppercase tracking-wider text-primary">
+            <span className="text-sm font-medium uppercase tracking-wider text-foreground">
               Enter Event Code
             </span>
           </div>

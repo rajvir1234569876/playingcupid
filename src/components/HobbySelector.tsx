@@ -18,7 +18,7 @@ export function HobbySelector({
 
   return (
     <div>
-      <p className="text-sm text-muted-foreground mb-4 text-center">
+      <p className="text-sm text-white/80 mb-4 text-center">
         Select up to {maxSelections} hobbies ({selected.length}/{maxSelections})
       </p>
       
@@ -39,7 +39,7 @@ export function HobbySelector({
                 px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200
                 flex items-center gap-2
                 ${isSelected
-                  ? "bg-primary text-primary-foreground shadow-button"
+                  ? "bg-white text-[#1A1A1A] shadow-button"
                   : isDisabled
                     ? "bg-muted/50 text-muted-foreground/50 cursor-not-allowed"
                     : "bg-card border border-border/50 text-foreground hover:border-primary/50 hover:bg-card/80"

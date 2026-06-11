@@ -8,7 +8,7 @@ import { QuestionCard } from "@/components/QuestionCard";
 import { HobbySelector } from "@/components/HobbySelector";
 import { QuestionSidebar } from "@/components/QuestionSidebar";
 
-import { ArrowLeft, ArrowRight, Loader2, Instagram, ChevronDown } from "lucide-react";
+import { ArrowRight, Loader2, Instagram, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { generateSessionToken, saveSession, getSession } from "@/lib/session";
@@ -247,13 +247,13 @@ export default function ProfileForm() {
             className="space-y-6"
           >
             <div className="text-center mb-8">
-              <h2 className="font-display text-3xl font-bold mb-2">Let's start with the basics</h2>
-              <p className="text-muted-foreground">Tell us a bit about yourself</p>
+              <h2 className="font-display text-3xl font-bold mb-2 text-white">Let's start with the basics</h2>
+              <p className="text-white/80">Tell us a bit about yourself</p>
             </div>
 
             <div className="space-y-4">
               <div>
-                <Label htmlFor="name">Your name</Label>
+                <Label htmlFor="name" className="text-white">Your name</Label>
                 <Input
                   id="name"
                   placeholder="What should we call you?"
@@ -265,7 +265,7 @@ export default function ProfileForm() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="age">Age</Label>
+                  <Label htmlFor="age" className="text-white">Age</Label>
                   <Input
                     id="age"
                     type="number"
@@ -278,7 +278,7 @@ export default function ProfileForm() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="city">City / Institution</Label>
+                  <Label htmlFor="city" className="text-white">City / Institution</Label>
                   <Input
                     id="city"
                     placeholder="Mumbai"
@@ -290,7 +290,7 @@ export default function ProfileForm() {
               </div>
 
               <div>
-                <Label htmlFor="instagram" className="flex items-center gap-2">
+                <Label htmlFor="instagram" className="flex items-center gap-2 text-white">
                   <Instagram className="w-4 h-4" />
                   Instagram (optional)
                 </Label>
@@ -301,19 +301,21 @@ export default function ProfileForm() {
                   onChange={(e) => updateFormData("instagram", e.target.value)}
                   className="bg-card border-border h-12"
                 />
-                <p className="text-xs text-muted-foreground mt-1">Shared only with your match 💕</p>
+                <p className="text-xs text-white/70 mt-1">Shared only with your match 💕</p>
               </div>
 
               <div>
-                <Label>I am a...</Label>
+                <Label className="text-white">I am a...</Label>
                 <div className="grid grid-cols-2 gap-2 mt-2">
                   {GENDERS.map((g) => (
                     <Button
                       key={g}
                       type="button"
-                      variant={formData.gender === g ? "default" : "outline"}
+                      variant="outline"
                       onClick={() => updateFormData("gender", g)}
-                      className={formData.gender === g ? "bg-primary" : "border-border"}
+                      className={formData.gender === g
+                        ? "bg-white text-[#1A1A1A] border-border font-semibold hover:bg-white/90"
+                        : "bg-card text-foreground border-border hover:bg-card/80"}
                     >
                       {g}
                     </Button>
@@ -334,21 +336,23 @@ export default function ProfileForm() {
             className="space-y-6"
           >
             <div className="text-center mb-8">
-              <h2 className="font-display text-3xl font-bold mb-2">Your preferences</h2>
-              <p className="text-muted-foreground">Help us find your perfect match</p>
+              <h2 className="font-display text-3xl font-bold mb-2 text-white">Your preferences</h2>
+              <p className="text-white/80">Help us find your perfect match</p>
             </div>
 
             <div className="space-y-6">
               <div>
-                <Label>I am..</Label>
+                <Label className="text-white">I am..</Label>
                 <div className="grid grid-cols-2 gap-2 mt-2">
                   {ORIENTATIONS.map((o) => (
                     <Button
                       key={o}
                       type="button"
-                      variant={formData.orientation === o ? "default" : "outline"}
+                      variant="outline"
                       onClick={() => updateFormData("orientation", o)}
-                      className={formData.orientation === o ? "bg-primary" : "border-border"}
+                      className={formData.orientation === o
+                        ? "bg-white text-[#1A1A1A] border-border font-semibold hover:bg-white/90"
+                        : "bg-card text-foreground border-border hover:bg-card/80"}
                     >
                       {o}
                     </Button>
@@ -357,15 +361,17 @@ export default function ProfileForm() {
               </div>
 
               <div>
-                <Label>Show me...</Label>
+                <Label className="text-white">Show me...</Label>
                 <div className="grid grid-cols-3 gap-2 mt-2">
                   {SHOW_ME_OPTIONS.map((o) => (
                     <Button
                       key={o}
                       type="button"
-                      variant={formData.showMe.includes(o) ? "default" : "outline"}
+                      variant="outline"
                       onClick={() => toggleShowMe(o)}
-                      className={formData.showMe.includes(o) ? "bg-primary" : "border-border"}
+                      className={formData.showMe.includes(o)
+                        ? "bg-white text-[#1A1A1A] border-border font-semibold hover:bg-white/90"
+                        : "bg-card text-foreground border-border hover:bg-card/80"}
                     >
                       {o}
                     </Button>
@@ -386,8 +392,8 @@ export default function ProfileForm() {
             className="space-y-6"
           >
             <div className="text-center mb-8">
-              <h2 className="font-display text-3xl font-bold mb-2">What do you love?</h2>
-              <p className="text-muted-foreground">Select your favorite hobbies</p>
+              <h2 className="font-display text-3xl font-bold mb-2 text-white">What do you love?</h2>
+              <p className="text-white/80">Select your favorite hobbies</p>
             </div>
             <HobbySelector hobbies={hobbies} selected={formData.hobbies} onToggle={toggleHobby} />
           </motion.div>
@@ -427,8 +433,8 @@ export default function ProfileForm() {
             </div>
 
             <div className="text-center mb-8">
-              <h2 className="font-display text-3xl font-bold mb-2">Vibe check ✨</h2>
-              <p className="text-muted-foreground">Quick questions to find your match</p>
+              <h2 className="font-display text-3xl font-bold mb-2 text-white">Vibe check ✨</h2>
+              <p className="text-white/80">Quick questions to find your match</p>
             </div>
 
             {questions[currentQuestionIndex] && (
@@ -450,7 +456,7 @@ export default function ProfileForm() {
       {/* Back button */}
       <button
         onClick={() => navigate("/join")}
-        className="absolute top-6 left-6 text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 text-sm z-10"
+        className="absolute top-6 left-6 text-white hover:text-white/80 transition-colors flex items-center gap-2 text-sm z-10"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -480,7 +486,7 @@ export default function ProfileForm() {
         animate={{ opacity: 1, y: 0 }}
         className="flex items-center justify-center gap-2 mb-8"
       >
-        <span className="font-display text-2xl font-bold text-primary">playingcupid</span>
+        <span className="font-display text-2xl font-bold text-white">playingcupid</span>
       </motion.div>
 
       {/* Form content */}
@@ -492,7 +498,7 @@ export default function ProfileForm() {
 
           {/* Desktop sidebar */}
           <div className="hidden md:flex flex-col gap-2 w-52 shrink-0 sticky top-8">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-3">
+            <p className="text-xs font-medium text-white/70 uppercase tracking-wider px-3">
               Questions
             </p>
             <div className="max-h-[65vh] overflow-y-auto pr-1">
@@ -504,7 +510,7 @@ export default function ProfileForm() {
                 highlightUnanswered={submitAttempted}
               />
             </div>
-            <p className="text-xs text-muted-foreground px-3">
+            <p className="text-xs text-white/70 px-3">
               {answeredCount} / {questions.length} answered
             </p>
           </div>
@@ -519,21 +525,10 @@ export default function ProfileForm() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`flex justify-between gap-4 mt-8 mx-auto w-full ${
+        className={`flex justify-end gap-4 mt-8 mx-auto w-full ${
           step === "questions" ? "max-w-5xl" : "max-w-lg"
         }`}
       >
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={handleBack}
-          disabled={step === "basics"}
-          className="text-muted-foreground"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
-        </Button>
-
         {step !== "questions" ? (
           <Button
             type="button"

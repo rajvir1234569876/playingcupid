@@ -37,7 +37,7 @@ export function QuestionSidebar({
                 ? "bg-green-500 text-white"
                 : isUnanswered
                 ? "bg-destructive/20 text-destructive ring-1 ring-destructive/50"
-                : "bg-muted text-muted-foreground",
+                : "bg-[#1A1A1A] text-white",
               isCurrent ? "ring-2 ring-primary ring-offset-1" : "",
             ].join(" ")}
           >

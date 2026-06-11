@@ -427,7 +427,7 @@ export default function AdminPanel() {
           className="relative z-10 w-full max-w-md"
         >
           <div className="flex items-center gap-3 mb-8 justify-center">
-            <h1 className="font-display text-3xl font-bold text-primary">playingcupid</h1>
+            <h1 className="font-display text-3xl font-bold text-white">playingcupid</h1>
           </div>
 
           <Card className="bg-card border-border">
@@ -528,8 +528,8 @@ export default function AdminPanel() {
         >
           <div className="flex items-center gap-3">
             <div>
-              <h1 className="font-display text-3xl font-bold text-primary">playingcupid</h1>
-              {currentEvent && <p className="text-muted-foreground">{currentEvent.name}</p>}
+              <h1 className="font-display text-3xl font-bold text-white">playingcupid</h1>
+              {currentEvent && <p className="text-white/70">{currentEvent.name}</p>}
             </div>
           </div>
           <Button variant="ghost" onClick={handleLogout} className="gap-2">
@@ -540,16 +540,16 @@ export default function AdminPanel() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="bg-card border border-border">
-            <TabsTrigger value="manage" disabled={!currentEvent}>
+            <TabsTrigger value="manage" disabled={!currentEvent} className="data-[state=active]:text-white">
               Manage Event
             </TabsTrigger>
-            <TabsTrigger value="matches" disabled={!currentEvent || currentEvent.status !== "revealed"}>
+            <TabsTrigger value="matches" disabled={!currentEvent || currentEvent.status !== "revealed"} className="data-[state=active]:text-white">
               Match Table
             </TabsTrigger>
-            <TabsTrigger value="responses" disabled={!currentEvent}>
+            <TabsTrigger value="responses" disabled={!currentEvent} className="data-[state=active]:text-white">
               Responses
             </TabsTrigger>
-            <TabsTrigger value="create">Create New</TabsTrigger>
+            <TabsTrigger value="create" className="data-[state=active]:text-white">Create New</TabsTrigger>
           </TabsList>
 
           {/* Manage current event */}
@@ -632,7 +632,7 @@ export default function AdminPanel() {
                     {/* Age Range Configuration */}
                     {currentEvent.status === "waiting" && (
                       <div className="bg-background rounded-lg p-4">
-                        <Label className="text-sm font-medium mb-2 block">
+                        <Label className="text-sm font-medium mb-2 block text-white">
                           Age Range Configuration
                         </Label>
                         <div className="flex items-center gap-4">
@@ -651,7 +651,7 @@ export default function AdminPanel() {
                               <SelectItem value="10">±10 years</SelectItem>
                             </SelectContent>
                           </Select>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-sm text-white/80">
                             Matches will be within ±{currentEvent.age_range} years of age
                           </p>
                         </div>
@@ -850,7 +850,7 @@ export default function AdminPanel() {
           <TabsContent value="create">
             <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle>Create New Event</CardTitle>
+                <CardTitle className="text-foreground">Create New Event</CardTitle>
                 <CardDescription>Set up a new matching event</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
