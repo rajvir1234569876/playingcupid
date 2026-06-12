@@ -261,6 +261,9 @@ export default function ProfileForm() {
                   onChange={(e) => updateFormData("name", e.target.value)}
                   className="bg-card border-border h-12"
                 />
+                <p className="text-xs text-white/70 mt-1">
+                  Enter your full name or the name you usually go by — you'll need this exact name to look up your match later.
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

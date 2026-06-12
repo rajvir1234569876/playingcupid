@@ -56,6 +56,7 @@ export default function AdminPanel() {
   const [genderBreakdown, setGenderBreakdown] = useState<{ male: number; female: number; other: number }>({ male: 0, female: 0, other: 0 });
   const [isTriggering, setIsTriggering] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [saveWarning, setSaveWarning] = useState<{ code: string; password: string } | null>(null);
   const [matchPairs, setMatchPairs] = useState<MatchPair[]>([]);
 
   // Participants/Responses state
@@ -315,7 +316,6 @@ export default function AdminPanel() {
         status: "waiting"
       }).select().single();
       if (error) throw error;
-      toast.success(`Event created! Code: ${code}`);
 
       // Auto-login to the new event
       setCurrentEvent(data as Event);
@@ -323,6 +323,7 @@ export default function AdminPanel() {
       sessionStorage.setItem("admin_event_id", data.id);
       setParticipantCount(0);
       setActiveTab("manage");
+      setSaveWarning({ code: data.code, password: data.admin_password });
 
       // Reset form
       setNewEvent({
@@ -587,42 +588,48 @@ export default function AdminPanel() {
                   <CardContent className="space-y-6">
                     <div className="grid grid-cols-3 gap-4">
                       <div className="bg-background rounded-lg p-4 text-center">
-                        <Users className="w-8 h-8 text-primary mx-auto mb-2" />
-                        <p className="text-2xl font-bold">{participantCount}</p>
-                        <p className="text-sm text-muted-foreground">Participants</p>
+                        <Users className="w-8 h-8 text-white mx-auto mb-2" />
+                        <p className="text-2xl font-bold text-white">{participantCount}</p>
+                        <p className="text-sm text-white/70">Participants</p>
                       </div>
                       <div className="bg-background rounded-lg p-4 text-center">
-                        <div className="flex justify-center gap-4 mb-2">
-                          <div className="flex items-center gap-1.5">
-                            <div className="w-3 h-3 rounded-full bg-blue-500" />
-                            <span className="text-lg font-bold">{genderBreakdown.male}</span>
+                        <div className="flex justify-center gap-4 mb-1">
+                          <div className="text-center">
+                            <div className="flex items-center gap-1 justify-center">
+                              <div className="w-2.5 h-2.5 rounded-full bg-blue-400" />
+                              <span className="text-xl font-bold text-white">{genderBreakdown.male}</span>
+                            </div>
+                            <p className="text-xs text-white/60 mt-0.5">Men</p>
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <div className="w-3 h-3 rounded-full bg-pink-500" />
-                            <span className="text-lg font-bold">{genderBreakdown.female}</span>
+                          <div className="text-center">
+                            <div className="flex items-center gap-1 justify-center">
+                              <div className="w-2.5 h-2.5 rounded-full bg-pink-400" />
+                              <span className="text-xl font-bold text-white">{genderBreakdown.female}</span>
+                            </div>
+                            <p className="text-xs text-white/60 mt-0.5">Women</p>
                           </div>
                           {genderBreakdown.other > 0 && (
-                            <div className="flex items-center gap-1.5">
-                              <div className="w-3 h-3 rounded-full bg-purple-500" />
-                              <span className="text-lg font-bold">{genderBreakdown.other}</span>
+                            <div className="text-center">
+                              <div className="flex items-center gap-1 justify-center">
+                                <div className="w-2.5 h-2.5 rounded-full bg-purple-400" />
+                                <span className="text-xl font-bold text-white">{genderBreakdown.other}</span>
+                              </div>
+                              <p className="text-xs text-white/60 mt-0.5">Other</p>
                             </div>
                           )}
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                          {genderBreakdown.male} men · {genderBreakdown.female} women
-                          {genderBreakdown.other > 0 && ` · ${genderBreakdown.other} other`}
-                        </p>
+                        <p className="text-sm text-white/70 mt-1">Gender breakdown</p>
                       </div>
                       <div className="bg-background rounded-lg p-4 text-center">
-                        <Clock className="w-8 h-8 text-primary mx-auto mb-2" />
-                        <p className="text-sm font-medium">
+                        <Clock className="w-8 h-8 text-white mx-auto mb-2" />
+                        <p className="text-sm font-medium text-white">
                           {currentEvent.reveal_time
                             ? new Date(currentEvent.reveal_time).toLocaleString("en-IN", {
                                 timeZone: "Asia/Kolkata"
                               }) + " IST"
                             : "Manual"}
                         </p>
-                        <p className="text-sm text-muted-foreground">Reveal Time</p>
+                        <p className="text-sm text-white/70">Reveal Time</p>
                       </div>
                     </div>
 
@@ -933,6 +940,71 @@ export default function AdminPanel() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Save-code warning modal — shown once right after event creation */}
+      {saveWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/70">
+          <div className="bg-card border-[3px] border-border rounded-sm shadow-[8px_8px_0px_#1A1A1A] max-w-md w-full">
+            <div className="p-6 space-y-5">
+              <div className="flex items-start gap-3">
+                <span className="text-3xl leading-none mt-0.5">⚠️</span>
+                <div>
+                  <h2 className="font-display text-xl font-bold text-foreground uppercase tracking-wide">
+                    Save this code now
+                  </h2>
+                  <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+                    This event code and your admin password are the{" "}
+                    <strong>only</strong> way to access and manage this event.
+                    Write them down or screenshot this screen — if you lose them,{" "}
+                    <strong>this event cannot be recovered.</strong>
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-muted border-[2px] border-border rounded-sm p-4 space-y-3">
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Event Code
+                  </p>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="font-mono text-4xl font-bold tracking-widest text-foreground">
+                      {saveWarning.code}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        navigator.clipboard.writeText(saveWarning.code);
+                        setCopiedCode(true);
+                        setTimeout(() => setCopiedCode(false), 2000);
+                      }}
+                      className="shrink-0 gap-1.5"
+                    >
+                      {copiedCode ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      {copiedCode ? "Copied" : "Copy"}
+                    </Button>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">
+                    Admin Password
+                  </p>
+                  <p className="font-mono text-lg font-semibold text-foreground">
+                    {saveWarning.password}
+                  </p>
+                </div>
+              </div>
+
+              <Button
+                onClick={() => setSaveWarning(null)}
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-button h-12 text-base font-semibold"
+              >
+                ✓ I've saved my code & password
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Responses Modal */}
       <ParticipantResponsesModal
