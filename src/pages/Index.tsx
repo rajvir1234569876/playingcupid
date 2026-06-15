@@ -72,21 +72,11 @@ export default function Index() {
         </div>
       </div>
 
-      {/* ── Mobile layout — cupid on top, cards below ── */}
-      <div className="flex md:hidden flex-col min-h-screen">
-        {/* Cupid image — fills top, face centered */}
-        <div className="w-full" style={{ height: '44vh' }}>
-          <img
-            src="/cupid-hero-v2.png"
-            alt=""
-            aria-hidden="true"
-            className="w-full h-full object-cover select-none pointer-events-none"
-            style={{ objectPosition: '-20% top' }}
-          />
-        </div>
+      {/* ── Mobile layout — phone background, cards below ── */}
+      <div className="flex md:hidden flex-col min-h-screen bg-[#C30E15] bg-[url('/playingcupidphone.png')] bg-no-repeat bg-top bg-[length:100%_auto]">
 
         {/* Cards section */}
-        <div className="flex flex-col items-center px-5 pt-7 pb-10 flex-1">
+        <div className="flex flex-col items-center px-5 pb-10 flex-1" style={{ paddingTop: '78vw' }}>
           <h1 className="font-serif text-3xl font-bold text-[#FFF8EE] mb-6 tracking-tight">
             playingcupid
           </h1>
