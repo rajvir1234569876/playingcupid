@@ -5,7 +5,6 @@ export interface Event {
   age_range: number;
   reveal_time: string | null;
   status: 'waiting' | 'matching' | 'revealed';
-  admin_password: string;
   created_at: string;
   updated_at: string;
 }

@@ -49,6 +49,9 @@ export default function AdminPanel() {
   const [authEventCode, setAuthEventCode] = useState("");
   const [authPassword, setAuthPassword] = useState("");
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  // Held in memory for the session duration — used to authenticate Edge Function calls
+  // and admin_update_event RPC calls. Stored in sessionStorage so page reloads work.
+  const [adminPassword, setAdminPasswordState] = useState("");
 
   // Event state
   const [currentEvent, setCurrentEvent] = useState<Event | null>(null);
@@ -77,9 +80,14 @@ export default function AdminPanel() {
 
   // Check for stored session on mount
   useEffect(() => {
-    const storedEventId = sessionStorage.getItem("admin_event_id");
-    if (storedEventId) {
-      fetchEventById(storedEventId);
+    const raw = sessionStorage.getItem("admin_session");
+    if (raw) {
+      try {
+        const { eventId, adminPassword: storedPwd } = JSON.parse(raw);
+        restoreAdminSession(eventId, storedPwd);
+      } catch {
+        sessionStorage.removeItem("admin_session");
+      }
     }
   }, []);
 
@@ -110,26 +118,28 @@ export default function AdminPanel() {
     }
   }, [activeTab, currentEvent?.id]);
 
-  const fetchEventById = async (eventId: string) => {
+  const saveAdminSession = (eventId: string, pwd: string) => {
+    sessionStorage.setItem("admin_session", JSON.stringify({ eventId, adminPassword: pwd }));
+  };
+
+  const restoreAdminSession = async (eventId: string, pwd: string) => {
     try {
-      const { data, error } = await supabase
-        .from("events")
-        .select("*")
-        .eq("id", eventId)
-        .single();
-      if (error || !data) {
-        sessionStorage.removeItem("admin_event_id");
+      const { data, error } = await supabase.rpc("get_event_safe", { p_event_id: eventId });
+      if (error || !data || data.length === 0) {
+        sessionStorage.removeItem("admin_session");
         return;
       }
-      setCurrentEvent(data as Event);
+      const event = data[0] as Event;
+      setCurrentEvent(event);
+      setAdminPasswordState(pwd);
       setIsAuthenticated(true);
       fetchParticipantCount(eventId);
-      if (data.status === "revealed") {
+      if (event.status === "revealed") {
         fetchMatchPairs(eventId);
       }
     } catch (error) {
-      console.error("Error fetching event:", error);
-      sessionStorage.removeItem("admin_event_id");
+      console.error("Error restoring session:", error);
+      sessionStorage.removeItem("admin_session");
     }
   };
 
@@ -246,27 +256,25 @@ export default function AdminPanel() {
     }
     setIsAuthenticating(true);
     try {
-      const { data, error } = await supabase
-        .from("events")
-        .select("*")
-        .eq("code", authEventCode.toUpperCase().trim())
-        .single();
-      if (error || !data) {
-        toast.error("Event not found");
+      // Password is verified server-side via bcrypt; admin_password is never sent to the client
+      const { data, error } = await supabase.rpc("verify_event_admin", {
+        p_event_code: authEventCode.toUpperCase().trim(),
+        p_password: authPassword,
+      });
+      if (error || !data || data.length === 0) {
+        toast.error("Incorrect event code or password");
         return;
       }
-      if (data.admin_password !== authPassword) {
-        toast.error("Incorrect password");
-        return;
-      }
-      setCurrentEvent(data as Event);
+      const event = data[0] as Event;
+      setCurrentEvent(event);
+      setAdminPasswordState(authPassword);
       setIsAuthenticated(true);
-      sessionStorage.setItem("admin_event_id", data.id);
-      fetchParticipantCount(data.id);
-      if (data.status === "revealed") {
-        fetchMatchPairs(data.id);
+      saveAdminSession(event.id, authPassword);
+      fetchParticipantCount(event.id);
+      if (event.status === "revealed") {
+        fetchMatchPairs(event.id);
       }
-      toast.success(`Welcome! Managing "${data.name}"`);
+      toast.success(`Welcome! Managing "${event.name}"`);
     } catch (error) {
       console.error("Login error:", error);
       toast.error("Failed to authenticate");
@@ -279,11 +287,12 @@ export default function AdminPanel() {
   const handleLogout = () => {
     setIsAuthenticated(false);
     setCurrentEvent(null);
+    setAdminPasswordState("");
     setAuthEventCode("");
     setAuthPassword("");
     setMatchPairs([]);
     setParticipants([]);
-    sessionStorage.removeItem("admin_event_id");
+    sessionStorage.removeItem("admin_session");
   };
 
   const generateEventCode = () => {
@@ -319,11 +328,13 @@ export default function AdminPanel() {
 
       // Auto-login to the new event
       setCurrentEvent(data as Event);
+      setAdminPasswordState(newEvent.adminPassword);
       setIsAuthenticated(true);
-      sessionStorage.setItem("admin_event_id", data.id);
+      saveAdminSession(data.id, newEvent.adminPassword);
       setParticipantCount(0);
       setActiveTab("manage");
-      setSaveWarning({ code: data.code, password: data.admin_password });
+      // Use the form-state password — admin_password is never returned by the API
+      setSaveWarning({ code: data.code, password: newEvent.adminPassword });
 
       // Reset form
       setNewEvent({
@@ -343,10 +354,11 @@ export default function AdminPanel() {
   const updateAgeRange = async (value: string) => {
     if (!currentEvent) return;
     try {
-      const { error } = await supabase
-        .from("events")
-        .update({ age_range: parseInt(value) })
-        .eq("id", currentEvent.id);
+      const { error } = await supabase.rpc("admin_update_event", {
+        p_event_id: currentEvent.id,
+        p_admin_password: adminPassword,
+        p_age_range: parseInt(value),
+      });
       if (error) throw error;
       setCurrentEvent(prev => prev ? { ...prev, age_range: parseInt(value) } : null);
       toast.success(`Age range updated to ±${value} years`);
@@ -360,33 +372,36 @@ export default function AdminPanel() {
     if (!currentEvent) return;
     setIsTriggering(true);
     try {
-      await supabase
-        .from("events")
-        .update({ status: "matching" })
-        .eq("id", currentEvent.id);
+      // Set status to matching (password verified server-side)
+      const { error: statusError } = await supabase.rpc("admin_update_event", {
+        p_event_id: currentEvent.id,
+        p_admin_password: adminPassword,
+        p_status: "matching",
+      });
+      if (statusError) throw statusError;
+
+      // Run matching; Edge Function verifies adminPassword again before executing
       const { error: fnError } = await supabase.functions.invoke("run-matching", {
-        body: { eventId: currentEvent.id }
+        body: { eventId: currentEvent.id, adminPassword }
       });
       if (fnError) throw fnError;
       toast.success("Matching complete! Revealing to participants...");
 
-      // Refresh event data
-      const { data } = await supabase
-        .from("events")
-        .select("*")
-        .eq("id", currentEvent.id)
-        .single();
-      if (data) {
-        setCurrentEvent(data as Event);
-        fetchMatchPairs(data.id);
+      // Refresh event data (get_event_safe — no password column)
+      const { data } = await supabase.rpc("get_event_safe", { p_event_id: currentEvent.id });
+      if (data && data.length > 0) {
+        setCurrentEvent(data[0] as Event);
+        fetchMatchPairs(data[0].id);
       }
     } catch (error) {
       console.error("Error triggering reveal:", error);
       toast.error("Failed to trigger matching");
-      await supabase
-        .from("events")
-        .update({ status: "waiting" })
-        .eq("id", currentEvent.id);
+      // Roll back status on failure
+      await supabase.rpc("admin_update_event", {
+        p_event_id: currentEvent.id,
+        p_admin_password: adminPassword,
+        p_status: "waiting",
+      });
     } finally {
       setIsTriggering(false);
     }

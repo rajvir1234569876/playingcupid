@@ -281,7 +281,27 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    const { eventId } = await req.json();
+    const { eventId, adminPassword } = await req.json();
+
+    if (!adminPassword) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Verify admin password server-side using bcrypt (service role can read admin_password)
+    const { data: isValid, error: authError } = await supabase.rpc("check_admin_password", {
+      p_event_id: eventId,
+      p_password: adminPassword,
+    });
+
+    if (authError || !isValid) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // Get event
     const { data: event, error: eventError } = await supabase

@@ -28,7 +28,7 @@ export default function CheckMatches() {
 
   const handleCheckMatch = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!eventCode.trim() || !name.trim()) {
       toast.error("Please enter both event code and name");
       return;
@@ -40,68 +40,37 @@ export default function CheckMatches() {
     setNotRevealed(false);
 
     try {
-      // First, find the event by code
-      const { data: event, error: eventError } = await supabase
-        .from("events")
-        .select("id, status")
-        .eq("code", eventCode.toUpperCase().trim())
-        .maybeSingle();
+      // Single server-side call — never dumps all participant names to the client
+      const { data, error } = await supabase.rpc("get_match_by_name", {
+        p_event_code: eventCode,
+        p_participant_name: name,
+      });
 
-      if (eventError) throw eventError;
+      if (error) throw error;
 
-      if (!event) {
-        toast.error("Event not found. Please check your event code.");
+      if (!data || data.length === 0) {
         setNotFound(true);
         return;
       }
 
-      // Check if event has been revealed
-      if (event.status !== "revealed") {
+      const result = data[0];
+
+      if (result.event_status !== "revealed") {
         setNotRevealed(true);
         return;
       }
 
-      // Find the participant by name (case-insensitive)
-      const { data: participants, error: participantError } = await supabase
-        .from("participants")
-        .select("id, name, matched_to, compatibility_score, compatibility_badge")
-        .eq("event_id", event.id);
-
-      if (participantError) throw participantError;
-
-      // Find participant with matching name (case-insensitive)
-      const participant = participants?.find(
-        (p) => p.name.toLowerCase().trim() === name.toLowerCase().trim()
-      );
-
-      if (!participant) {
-        setNotFound(true);
-        return;
-      }
-
-      if (!participant.matched_to) {
-        setNotFound(true);
-        return;
-      }
-
-      // Fetch the matched person's details
-      const { data: matchData, error: matchError } = await supabase
-        .from("participants")
-        .select("name, age, instagram")
-        .eq("id", participant.matched_to)
-        .single();
-
-      if (matchError || !matchData) {
+      if (!result.match_name) {
         setNotFound(true);
         return;
       }
 
       setMatchResult({
-        matchName: matchData.name,
-        matchAge: matchData.age,
-        compatibilityScore: participant.compatibility_score || 75,
-        compatibilityBadge: participant.compatibility_badge || "A match made in the stars ✨",
-        instagram: matchData.instagram,
+        matchName: result.match_name,
+        matchAge: result.match_age || 0,
+        compatibilityScore: result.compatibility_score || 75,
+        compatibilityBadge: result.compatibility_badge || "A match made in the stars ✨",
+        instagram: result.instagram,
       });
 
     } catch (error) {
