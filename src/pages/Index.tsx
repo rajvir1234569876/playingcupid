@@ -74,13 +74,14 @@ export default function Index() {
 
       {/* ── Mobile layout — cupid on top, cards below ── */}
       <div className="flex md:hidden flex-col min-h-screen">
-        {/* Cupid image cropped to character area */}
+        {/* Cupid image — fills top, face centered */}
         <div className="w-full" style={{ height: '44vh' }}>
           <img
             src="/cupid-hero-v2.png"
             alt=""
             aria-hidden="true"
-            className="w-full h-full object-cover object-center select-none pointer-events-none"
+            className="w-full h-full object-cover select-none pointer-events-none"
+            style={{ objectPosition: '-20% top' }}
           />
         </div>
 
