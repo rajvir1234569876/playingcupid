@@ -4,22 +4,31 @@
 --   • SECURITY DEFINER functions for server-side admin auth and event updates
 --   • secure match-lookup function that prevents participant enumeration
 --   • drop permissive USING (true) policies on events UPDATE, questions, and hobbies
+--
+-- Supabase note: pgcrypto lives in the extensions schema, not public.
+-- Every crypt() / gen_salt() call is schema-qualified as extensions.crypt() /
+-- extensions.gen_salt() so they resolve regardless of search_path.
 
 -- ─── pgcrypto ────────────────────────────────────────────────────────────────
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
+-- On Supabase, pgcrypto is pre-installed in the extensions schema.
+-- WITH SCHEMA extensions is idempotent when it is already there.
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
 
 -- ─── Hash existing plaintext passwords BEFORE the trigger is created ─────────
 -- bcrypt hashes always start with $2a$ or $2b$; skip any already hashed.
 UPDATE public.events
-SET    admin_password = crypt(admin_password, gen_salt('bf'))
+SET    admin_password = extensions.crypt(admin_password, extensions.gen_salt('bf'))
 WHERE  admin_password NOT LIKE '$2a$%'
   AND  admin_password NOT LIKE '$2b$%';
 
 -- ─── Trigger: bcrypt-hash admin_password on every insert/change ──────────────
+-- search_path includes extensions so crypt() / gen_salt() are visible
+-- without schema qualification inside the function body.
 CREATE OR REPLACE FUNCTION public.hash_admin_password()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public, extensions
 AS $$
 BEGIN
   -- Only hash if the incoming value is plaintext (not already a bcrypt hash)
@@ -58,7 +67,7 @@ RETURNS TABLE (
   updated_at  TIMESTAMPTZ
 )
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, extensions
 LANGUAGE plpgsql
 AS $$
 BEGIN
@@ -120,7 +129,7 @@ RETURNS TABLE (
   updated_at  TIMESTAMPTZ
 )
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, extensions
 LANGUAGE plpgsql
 AS $$
 DECLARE
@@ -159,7 +168,7 @@ CREATE OR REPLACE FUNCTION public.check_admin_password(
 )
 RETURNS BOOLEAN
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, extensions
 LANGUAGE sql
 AS $$
   SELECT EXISTS (
