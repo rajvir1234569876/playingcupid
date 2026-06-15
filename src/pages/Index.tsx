@@ -26,16 +26,16 @@ export default function Index() {
   const navigate = useNavigate();
 
   return (
-    <div className="bg-[#DC1019] min-h-screen overflow-x-hidden">
+    <div className="bg-[#C40E16] min-h-screen overflow-x-hidden">
 
       {/* ── Desktop layout ── */}
       <div className="hidden md:block relative h-screen overflow-hidden">
         {/* Cupid — anchored bottom-left, blends into background */}
         <img
-          src="/cupid-hero.png"
+          src="/cupid-hero-v2.png"
           alt=""
           aria-hidden="true"
-          className="absolute bottom-0 left-0 h-[82vh] w-auto select-none pointer-events-none"
+          className="absolute bottom-0 left-8 h-[88vh] w-auto select-none pointer-events-none"
         />
 
         {/* Right panel — cards at binoculars height */}
@@ -55,7 +55,7 @@ export default function Index() {
                            active:translate-x-0.5 active:translate-y-0.5 active:shadow-[3px_3px_0px_#1A0800]
                            transition-all duration-100 cursor-pointer"
               >
-                <div className="w-10 h-10 rounded-full bg-[#DC1019] border-2 border-[#1A0800] flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-full bg-[#C40E16] border-2 border-[#1A0800] flex items-center justify-center flex-shrink-0">
                   <Icon className="w-5 h-5 text-[#FFF8EE]" />
                 </div>
                 <div>
@@ -77,7 +77,7 @@ export default function Index() {
         {/* Cupid image cropped to character area */}
         <div className="w-full" style={{ height: '44vh' }}>
           <img
-            src="/cupid-hero.png"
+            src="/cupid-hero-v2.png"
             alt=""
             aria-hidden="true"
             className="w-full h-full object-cover object-center select-none pointer-events-none"
@@ -100,7 +100,7 @@ export default function Index() {
                            active:translate-x-0.5 active:translate-y-0.5 active:shadow-[3px_3px_0px_#1A0800]
                            transition-all duration-100 cursor-pointer"
               >
-                <div className="w-10 h-10 rounded-full bg-[#DC1019] border-2 border-[#1A0800] flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-full bg-[#C40E16] border-2 border-[#1A0800] flex items-center justify-center flex-shrink-0">
                   <Icon className="w-5 h-5 text-[#FFF8EE]" />
                 </div>
                 <div>

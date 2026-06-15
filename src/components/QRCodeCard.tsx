@@ -36,7 +36,7 @@ export function QRCodeCard({ eventCode }: QRCodeCardProps) {
     ctx.strokeRect(7, 7, W - 14, H - 14);
 
     // "playing cupid" title
-    ctx.fillStyle = "#DC1019";
+    ctx.fillStyle = "#C40E16";
     ctx.font = "bold 76px serif";
     ctx.textAlign = "center";
     ctx.fillText("playing cupid", W / 2, 108);

@@ -7,7 +7,7 @@
 @layer base {
   :root {
     /* Core palette */
-    --background: 357 86% 46%;     /* #DC1019 red */
+    --background: 357 87% 41%;     /* #C40E16 red */
     --foreground: 0 0% 10%;        /* #1A1A1A near-black */
 
     --card: 43 77% 93%;            /* #FBF3E0 cream */
@@ -16,11 +16,11 @@
     --popover: 43 77% 93%;
     --popover-foreground: 0 0% 10%;
 
-    --primary: 357 86% 46%;        /* #DC1019 red */
+    --primary: 357 87% 41%;        /* #C40E16 red */
     --primary-foreground: 43 77% 93%;
 
     /* Question card colors */
-    --question-bg: 357 86% 46%;
+    --question-bg: 357 87% 41%;
     --question-text: 54 100% 65%;  /* yellow accent */
 
     --secondary: 43 77% 85%;       /* muted cream */
@@ -37,13 +37,13 @@
 
     --border: 0 0% 10%;            /* #1A1A1A outlines */
     --input: 43 50% 88%;
-    --ring: 357 86% 46%;
+    --ring: 357 87% 41%;
 
     --radius: 0.25rem;             /* sharp corners to match card style */
 
     /* Custom tokens */
     --cream: 43 77% 93%;
-    --cherry: 357 86% 46%;
+    --cherry: 357 87% 41%;
     --yellow: 54 100% 65%;
     --near-black: 0 0% 10%;
     --champagne: 43 77% 85%;
@@ -54,19 +54,19 @@
     --deep-purple: 0 0% 15%;
 
     /* Shadows */
-    --shadow-glow: 0 0 60px hsl(357 86% 46% / 0.3);
+    --shadow-glow: 0 0 60px hsl(357 87% 41% / 0.3);
     --shadow-card: 5px 5px 0px hsl(0 0% 10%);
     --shadow-button: 4px 4px 0px hsl(0 0% 10%);
 
     --sidebar-background: 43 77% 93%;
     --sidebar-foreground: 0 0% 10%;
-    --sidebar-primary: 357 86% 46%;
+    --sidebar-primary: 357 87% 41%;
     --sidebar-primary-foreground: 43 77% 93%;
     --sidebar-accent: 43 77% 85%;
     --sidebar-accent-foreground: 0 0% 10%;
     --sidebar-border: 0 0% 10%;
-    --sidebar-ring: 357 86% 46%;
-    --chart-1: 357 86% 46%;
+    --sidebar-ring: 357 87% 41%;
+    --chart-1: 357 87% 41%;
     --chart-2: 43 77% 70%;
     --chart-3: 54 100% 65%;
     --chart-4: 357 60% 55%;
