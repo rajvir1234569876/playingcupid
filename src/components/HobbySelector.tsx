@@ -39,7 +39,7 @@ export function HobbySelector({
                 px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200
                 flex items-center gap-2
                 ${isSelected
-                  ? "bg-white text-[#1A1A1A] shadow-button"
+                  ? "bg-[#DC1019] text-white border-2 border-[#1A1A1A] shadow-button"
                   : isDisabled
                     ? "bg-muted/50 text-muted-foreground/50 cursor-not-allowed"
                     : "bg-card border border-border/50 text-foreground hover:border-primary/50 hover:bg-card/80"

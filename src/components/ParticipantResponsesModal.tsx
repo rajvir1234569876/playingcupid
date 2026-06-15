@@ -59,25 +59,25 @@ export function ParticipantResponsesModal({
   const getCategoryColor = (category: string | null): string => {
     switch (category) {
       case "personality":
-        return "bg-purple-500/20 text-purple-600";
+        return "bg-purple-500/20 text-[#1A1A1A]";
       case "communication":
-        return "bg-blue-500/20 text-blue-600";
+        return "bg-blue-500/20 text-[#1A1A1A]";
       case "emotional_depth":
-        return "bg-pink-500/20 text-pink-600";
+        return "bg-pink-500/20 text-[#1A1A1A]";
       case "values":
-        return "bg-amber-500/20 text-amber-600";
+        return "bg-amber-500/20 text-[#1A1A1A]";
       case "relationship":
-        return "bg-rose-500/20 text-rose-600";
+        return "bg-rose-500/20 text-[#1A1A1A]";
       case "conflict":
-        return "bg-orange-500/20 text-orange-600";
+        return "bg-orange-500/20 text-[#1A1A1A]";
       case "lifestyle":
-        return "bg-green-500/20 text-green-600";
+        return "bg-green-500/20 text-[#1A1A1A]";
       case "connection":
-        return "bg-cyan-500/20 text-cyan-600";
+        return "bg-cyan-500/20 text-[#1A1A1A]";
       case "dating":
-        return "bg-indigo-500/20 text-indigo-600";
+        return "bg-indigo-500/20 text-[#1A1A1A]";
       default:
-        return "bg-muted text-muted-foreground";
+        return "bg-muted text-[#1A1A1A]";
     }
   };
 
@@ -177,7 +177,7 @@ export function ParticipantResponsesModal({
                       </p>
                       {answer ? (
                         <div className="bg-primary/10 rounded-md px-3 py-2">
-                          <span className="text-primary font-medium text-sm">
+                          <span className="text-[#1A1A1A] font-medium text-sm">
                             {answer}
                           </span>
                         </div>

@@ -317,7 +317,7 @@ export default function ProfileForm() {
                       variant="outline"
                       onClick={() => updateFormData("gender", g)}
                       className={formData.gender === g
-                        ? "bg-white text-[#1A1A1A] border-border font-semibold hover:bg-white/90"
+                        ? "bg-[#DC1019] text-white border-2 border-[#1A1A1A] font-semibold hover:bg-[#DC1019]/90"
                         : "bg-card text-foreground border-border hover:bg-card/80"}
                     >
                       {g}
@@ -354,7 +354,7 @@ export default function ProfileForm() {
                       variant="outline"
                       onClick={() => updateFormData("orientation", o)}
                       className={formData.orientation === o
-                        ? "bg-white text-[#1A1A1A] border-border font-semibold hover:bg-white/90"
+                        ? "bg-[#DC1019] text-white border-2 border-[#1A1A1A] font-semibold hover:bg-[#DC1019]/90"
                         : "bg-card text-foreground border-border hover:bg-card/80"}
                     >
                       {o}
@@ -373,7 +373,7 @@ export default function ProfileForm() {
                       variant="outline"
                       onClick={() => toggleShowMe(o)}
                       className={formData.showMe.includes(o)
-                        ? "bg-white text-[#1A1A1A] border-border font-semibold hover:bg-white/90"
+                        ? "bg-[#DC1019] text-white border-2 border-[#1A1A1A] font-semibold hover:bg-[#DC1019]/90"
                         : "bg-card text-foreground border-border hover:bg-card/80"}
                     >
                       {o}
