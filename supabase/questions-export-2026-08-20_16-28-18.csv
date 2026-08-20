@@ -1,0 +1,19 @@
+id;question;options;category;sort_order;is_active;created_at
+31fee01b-2b47-401c-bb6e-36acf6afb179;What are you actually looking for here?;"[""Something real"",""Open to whatever"",""Just here for fun"",""No clue honestly""]";relationship;1;true;2026-06-12 19:12:57.927224+00
+972d4093-abae-4a46-8380-9ad4d931d6bc;What matters most to you right now?;"[""Adventure & experiences"",""Close relationships"",""Ambition & goals"",""Peace & stability""]";values;2;true;2026-06-12 19:12:57.927224+00
+17fa0163-2aaf-4a32-a781-a1bffff21781;How do you recharge after a rough day?;"[""Talk it out"",""Alone to decompress"",""Distraction & fun"",""Keep busy""]";emotional_depth;3;true;2026-06-12 19:12:57.927224+00
+b8f8646d-a614-4894-84f9-1979e30d0c98;When you're upset with someone, you usually…;"[""Talk it out fast"",""Need to cool off first"",""Go quiet"",""Avoid it""]";conflict;4;true;2026-06-12 19:12:57.927224+00
+7046c59e-b8c2-44ec-8589-2afc840d8e27;How do you handle disagreement?;"[""Head-on, I'm honest"",""Carefully, I hate tension"",""I usually give in"",""Depends how much I care""]";conflict;5;true;2026-06-12 19:12:57.927224+00
+2ba17993-8d17-4fb2-9fba-db52d0457732;Your ideal pace of life?;"[""Fast and full"",""Balanced"",""Slow and chill"",""Chaos, somehow it works""]";values;6;true;2026-06-12 19:12:57.927224+00
+a4cd615b-3c96-44a7-835d-9a894ad35436;At a party you're most likely…;"[""Center of it"",""Deep talk in a corner"",""Floating around"",""Leaving early""]";personality;7;true;2026-06-12 19:12:57.927224+00
+4989ef70-1391-4c00-b0a7-a3ea45033c17;Be honest, you're more…;"[""Spontaneous"",""Planned"",""Chaotic mix"",""Mood-dependent""]";personality;8;true;2026-06-12 19:12:57.927224+00
+390775e9-f6ef-4f52-9789-ec6d4454a3cd;How do you show you like someone?;"[""Just tell them"",""Through effort"",""Teasing & banter"",""I get shy""]";communication;9;true;2026-06-12 19:12:57.927224+00
+63d76ffc-d018-4411-b689-67da16abf56b;What pulls you toward someone first?;"[""Their humor"",""Their looks"",""Their energy"",""Their mind""]";connection;10;true;2026-06-12 19:12:57.927224+00
+d096b2bd-8d06-464d-a2df-46ccb97cb740;Your texting style?;"[""Instant replier"",""Slow but thoughtful"",""Meme & voice notes"",""Allergic to texting""]";communication;11;true;2026-06-12 19:12:57.927224+00
+9b473dd8-f528-402f-9f79-857210263851;Your friends would call you the…;"[""Leader"",""Funny one"",""Listener"",""Wildcard""]";personality;12;true;2026-06-12 19:12:57.927224+00
+3873af9d-0da7-43e0-9aa0-c6947bc0d6ef;Ideal weekend?;"[""Out till sunrise"",""Cozy night in"",""Outdoor adventure"",""Spontaneous trip""]";lifestyle;13;true;2026-06-12 19:12:57.927224+00
+e774f23f-565f-44bb-b7f1-2db1dedb3e4d;Your toxic trait?;"[""Replying late"",""Too blunt"",""Overthinking"",""Too nice""]";lifestyle;14;true;2026-06-12 19:12:57.927224+00
+40cf680c-47c9-448a-8634-e76096b238d6;Ideal first date?;"[""Coffee & a walk"",""Something adventurous"",""Dinner & drinks"",""Netflix & chaos""]";dating;15;true;2026-06-12 19:12:57.927224+00
+f38b3e8c-e306-454f-8681-bc6a3740d293;Green flag you look for?;"[""Makes me laugh"",""Emotionally mature"",""Driven"",""Kind to everyone""]";dating;16;true;2026-06-12 19:12:57.927224+00
+10e769aa-3246-47c7-b3f4-e968ccd0109c;Pick your fighter energy:;"[""Golden retriever"",""Black cat"",""Chaos gremlin"",""Wise owl""]";lifestyle;17;true;2026-06-12 19:12:57.927224+00
+cad9de28-7126-4e5e-9068-1ecffeb42deb;Your love language (receiving)?;"[""Words"",""Quality time"",""Touch"",""Acts of service""]";dating;18;true;2026-06-12 19:12:57.927224+00
