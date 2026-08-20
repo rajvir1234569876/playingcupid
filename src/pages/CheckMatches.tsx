@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ArrowLeft, Search, Loader2, Heart, Instagram } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { displayScore } from "@/lib/score";
 
 interface MatchResult {
   matchName: string;
@@ -224,7 +225,7 @@ export default function CheckMatches() {
                   >
                     <Heart className="w-5 h-5 text-primary fill-primary" />
                     <span className="text-2xl font-bold text-primary">
-                      {matchResult.compatibilityScore}%
+                      {displayScore(matchResult.compatibilityScore)}%
                     </span>
                     <span className="text-muted-foreground">compatible</span>
                   </motion.div>

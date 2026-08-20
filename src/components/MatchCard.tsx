@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { MapPin, MessageCircle, RefreshCw, Sparkles, Instagram } from "lucide-react";
 import type { Participant } from "@/lib/types";
+import { displayScore } from "@/lib/score";
 
 interface MatchCardProps {
   match: Participant;
@@ -104,7 +105,7 @@ export function MatchCard({
       >
         <div className="inline-flex items-center gap-2 bg-primary/10 px-6 py-3 rounded-full border border-primary/20">
           <Sparkles className="w-5 h-5 text-accent" />
-          <span className="text-2xl font-bold text-primary">{compatibilityScore}%</span>
+          <span className="text-2xl font-bold text-primary">{displayScore(compatibilityScore)}%</span>
           <span className="text-muted-foreground">compatible</span>
         </div>
       </motion.div>

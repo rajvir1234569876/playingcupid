@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import type { Event, Participant, Answer } from "@/lib/types";
+import { displayScore } from "@/lib/score";
 
 interface MatchPair {
   personA: {
@@ -752,20 +753,25 @@ export default function AdminPanel() {
                           </TableCell>
                           <TableCell className="font-medium">{pair.personB.name}</TableCell>
                           <TableCell className="text-right">
-                            <span
-                              className={`
-                                px-2 py-1 rounded-full text-sm font-medium
-                                ${
-                                  pair.compatibilityScore >= 80
-                                    ? "bg-green-500/20 text-green-600"
-                                    : pair.compatibilityScore >= 60
-                                    ? "bg-yellow-500/20 text-yellow-600"
-                                    : "bg-orange-500/20 text-orange-600"
-                                }
-                              `}
-                            >
-                              {pair.compatibilityScore}%
-                            </span>
+                            <div className="flex flex-col items-end gap-1">
+                              <span
+                                className={`
+                                  px-2 py-1 rounded-full text-sm font-medium
+                                  ${
+                                    pair.compatibilityScore >= 80
+                                      ? "bg-green-500/20 text-green-600"
+                                      : pair.compatibilityScore >= 60
+                                      ? "bg-yellow-500/20 text-yellow-600"
+                                      : "bg-orange-500/20 text-orange-600"
+                                  }
+                                `}
+                              >
+                                True: {pair.compatibilityScore}%
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                Shown: {displayScore(pair.compatibilityScore)}%
+                              </span>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}

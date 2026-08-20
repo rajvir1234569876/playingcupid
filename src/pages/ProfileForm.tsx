@@ -16,7 +16,12 @@ import type { Question, Hobby, FormStep, Answer } from "@/lib/types";
 
 const GENDERS = ["Man", "Woman", "Non-binary", "Other"];
 const ORIENTATIONS = ["Straight", "Gay", "Lesbian", "Bisexual", "Pansexual", "Other"];
-const SHOW_ME_OPTIONS = ["Men", "Women", "Everyone"];
+const SHOW_ME_OPTIONS = [
+  { label: "Men", value: "Men" },
+  { label: "Women", value: "Women" },
+  { label: "Non-binary people", value: "Non-binary" },
+  { label: "Everyone", value: "Everyone" },
+];
 
 export default function ProfileForm() {
   const { eventId } = useParams();
@@ -365,18 +370,18 @@ export default function ProfileForm() {
 
               <div>
                 <Label className="text-white">Show me...</Label>
-                <div className="grid grid-cols-3 gap-2 mt-2">
+                <div className="grid grid-cols-2 gap-2 mt-2">
                   {SHOW_ME_OPTIONS.map((o) => (
                     <Button
-                      key={o}
+                      key={o.value}
                       type="button"
                       variant="outline"
-                      onClick={() => toggleShowMe(o)}
-                      className={formData.showMe.includes(o)
+                      onClick={() => toggleShowMe(o.value)}
+                      className={formData.showMe.includes(o.value)
                         ? "bg-[#C40E16] text-white border-2 border-[#1A1A1A] font-semibold hover:bg-[#C40E16]/90"
                         : "bg-card text-foreground border-border hover:bg-card/80"}
                     >
-                      {o}
+                      {o.label}
                     </Button>
                   ))}
                 </div>
