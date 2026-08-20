@@ -1,0 +1,146 @@
+[
+  {
+    "sort_order": 1,
+    "question": "What's your energy?",
+    "category": "personality",
+    "match_key": null,
+    "is_ordinal": false,
+    "options": ["Golden Retriever", "Black Cat", "Main Character", "Comic relief", "Disney Princess", "Evil Villain"]
+  },
+  {
+    "sort_order": 2,
+    "question": "Your biggest current hyperfixation?",
+    "category": "lifestyle",
+    "match_key": null,
+    "is_ordinal": false,
+    "options": ["Films & TV", "Music discovery", "Books", "Gaming", "Cooking/Baking", "Crafts & DIY", "Fitness/Sports", "Plants", "Photography", "Art", "Random Wikipedia rabbit holes"]
+  },
+  {
+    "sort_order": 3,
+    "question": "What's your ideal weekend?",
+    "category": "lifestyle",
+    "match_key": null,
+    "is_ordinal": false,
+    "options": ["Café hopping", "Movie marathon", "Road trip with friends", "Sleeping until noon", "Trying something new", "Staying in with books/games", "Exploring the city", "Going to a concert or event"]
+  },
+  {
+    "sort_order": 4,
+    "question": "How do you show you like someone?",
+    "category": "connection",
+    "match_key": null,
+    "is_ordinal": false,
+    "options": ["Constant texting/memes", "Quality time", "Small thoughtful gifts", "Acts of service", "Playful teasing", "Physical affection", "Deep conversations", "Sharing playlists/recommendations"]
+  },
+  {
+    "sort_order": 5,
+    "question": "What do you look for most in a partner?",
+    "category": "values",
+    "match_key": null,
+    "is_ordinal": false,
+    "options": ["Kindness", "Humor", "Emotional maturity", "Intelligence", "Ambition", "Creativity", "Similar interests", "Confidence", "Adventurous spirit"]
+  },
+  {
+    "sort_order": 6,
+    "question": "Giving love language",
+    "category": "connection",
+    "match_key": "love_giving",
+    "is_ordinal": false,
+    "options": ["Words of affirmation", "Acts of service", "Gifts", "Quality time", "Physical touch"]
+  },
+  {
+    "sort_order": 7,
+    "question": "Receiving love language",
+    "category": "connection",
+    "match_key": "love_receiving",
+    "is_ordinal": false,
+    "options": ["Words of affirmation", "Acts of service", "Gifts", "Quality time", "Physical touch"]
+  },
+  {
+    "sort_order": 8,
+    "question": "After a rough day, you're most likely to...",
+    "category": "lifestyle",
+    "match_key": null,
+    "is_ordinal": false,
+    "options": ["Take a nap", "Call a friend", "Listen to music", "Watch comfort shows", "Go for a walk", "Eat good food", "Hit the gym", "Journal or read"]
+  },
+  {
+    "sort_order": 9,
+    "question": "How do you handle disagreements?",
+    "category": "conflict",
+    "match_key": null,
+    "is_ordinal": false,
+    "options": ["Talk it out immediately", "Need time before talking", "Try to compromise", "Crack jokes to lighten the mood", "Hear everyone out first", "Avoid conflict if possible"]
+  },
+  {
+    "sort_order": 10,
+    "question": "If you were stranded on an island, what soundtrack are you bringing?",
+    "category": "lifestyle",
+    "match_key": null,
+    "is_ordinal": false,
+    "options": ["Pop anthems", "Indie", "Bollywood", "Rock", "Hip-hop/Rap", "Classical", "Jazz", "Lo-fi", "R&B", "One artist on repeat"]
+  },
+  {
+    "sort_order": 11,
+    "question": "Your social battery?",
+    "category": "personality",
+    "match_key": null,
+    "is_ordinal": true,
+    "options": ["100% Extrovert", "Mostly outgoing", "Depends on the crowd", "Mostly introverted", "Recharge alone"]
+  },
+  {
+    "sort_order": 12,
+    "question": "Your texting style?",
+    "category": "communication",
+    "match_key": null,
+    "is_ordinal": false,
+    "options": ["Replies instantly", "Replies within a few hours", "Sends essays", "Sends one-line messages", "Voice notes only", "Reacts with memes/GIFs", "Accidentally disappears for days"]
+  },
+  {
+    "sort_order": 13,
+    "question": "Pick your first date.",
+    "category": "dating",
+    "match_key": null,
+    "is_ordinal": false,
+    "options": ["Coffee", "Bookstore", "Museum", "Arcade", "Picnic", "Movie", "Thrifting", "Night walk", "Food crawl", "Mini golf/Bowling"]
+  },
+  {
+    "sort_order": 14,
+    "question": "Your friend group would describe you as...",
+    "category": "personality",
+    "match_key": null,
+    "is_ordinal": false,
+    "options": ["The planner", "The therapist", "The funny one", "The chaotic one", "The responsible one", "The parent friend", "The quiet observer", "The spontaneous one"]
+  },
+  {
+    "sort_order": 15,
+    "question": "What's your conversation sweet spot?",
+    "category": "connection",
+    "match_key": null,
+    "is_ordinal": false,
+    "options": ["Deep life talks", "Pop culture", "Philosophy", "Gossip", "Science & tech", "Random fun facts", "Music", "Travel", "Memes"]
+  },
+  {
+    "sort_order": 16,
+    "question": "Which campus event are you most likely to attend?",
+    "category": "lifestyle",
+    "match_key": null,
+    "is_ordinal": false,
+    "options": ["Live music night", "Film screening", "Sports match", "Cultural fest", "Debate/Quiz", "Open mic", "Board game night", "Volunteering event"]
+  },
+  {
+    "sort_order": 17,
+    "question": "Which green flag wins you over instantly?",
+    "category": "values",
+    "match_key": null,
+    "is_ordinal": false,
+    "options": ["They're kind to everyone", "They remember little details", "They communicate honestly", "They make you laugh", "They're passionate about something", "They're curious", "They support your goals", "They're emotionally available"]
+  },
+  {
+    "sort_order": 18,
+    "question": "Pick a vibe.",
+    "category": "lifestyle",
+    "match_key": null,
+    "is_ordinal": false,
+    "options": ["Sunrise coffee", "Midnight drives", "Rainy afternoons", "Library corners", "Carnival lights", "Cozy candlelit evenings", "Beach sunsets", "Spring picnic"]
+  }
+]
