@@ -2,12 +2,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   type Participant,
   type QuestionConfig,
-  type CompatibilityResult,
   ALIGNMENT_CATEGORIES,
   COMPLEMENT_CATEGORIES,
-  calculateCompatibility,
-  generateBadge,
 } from "./scoring.ts";
+import { matchParticipants } from "./matching.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -106,49 +104,18 @@ Deno.serve(async (req) => {
     console.log(`Matching ${participants?.length || 0} participants for event ${eventId}`);
 
     const unmatched = [...(participants || [])] as Participant[];
-    const matches: { id: string; matchId: string; score: number; badge: string }[] = [];
 
-    // Calculate all compatibility scores
-    const scores: {
-      p1: string;
-      p2: string;
-      result: CompatibilityResult;
-    }[] = [];
+    // Greedy matching - assign highest mutual compatibility first, then run
+    // a repair pass on whoever is left over (see matching.ts for why).
+    const { matches, unmatched: stillUnmatched } = matchParticipants(
+      unmatched,
+      event.age_range,
+      questionConfigs
+    );
 
-    for (let i = 0; i < unmatched.length; i++) {
-      for (let j = i + 1; j < unmatched.length; j++) {
-        const result = calculateCompatibility(
-          unmatched[i],
-          unmatched[j],
-          event.age_range,
-          questionConfigs
-        );
-
-        if (!result.rejected && result.score > 0) {
-          scores.push({
-            p1: unmatched[i].id,
-            p2: unmatched[j].id,
-            result
-          });
-        }
-      }
-    }
-
-    // Sort by score descending (best matches first)
-    scores.sort((a, b) => b.result.score - a.result.score);
-
-    // Greedy matching - assign highest mutual compatibility first
-    const matched = new Set<string>();
-
-    for (const { p1, p2, result } of scores) {
-      if (!matched.has(p1) && !matched.has(p2)) {
-        const badge = generateBadge(result);
-        matches.push({ id: p1, matchId: p2, score: result.score, badge });
-        matches.push({ id: p2, matchId: p1, score: result.score, badge });
-        matched.add(p1);
-        matched.add(p2);
-      }
-    }
+    console.log(
+      `Matched ${matches.length / 2} pairs, ${stillUnmatched.length} participant(s) left unmatched`
+    );
 
     // Update participants with matches
     for (const match of matches) {
@@ -167,8 +134,6 @@ Deno.serve(async (req) => {
       .from("events")
       .update({ status: "revealed" })
       .eq("id", eventId);
-
-    console.log(`Matched ${matches.length / 2} pairs`);
 
     return new Response(
       JSON.stringify({ success: true, matchedPairs: matches.length / 2 }),
