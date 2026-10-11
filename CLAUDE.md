@@ -2,9 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-> **Note:** this file was out of date as of 2026-08-21 — it described a pre-security-hardening,
-> pre-rewrite, and pre-migration state. If anything here contradicts the actual code, trust the
-> code and flag the mismatch.
+> **Current as of 2026-08-29.** Reflects the post-migration, post-security-hardening state. If
+> anything here contradicts the actual code, trust the code and flag the mismatch.
 
 ## Commands
 
@@ -45,7 +44,17 @@ The questions step (`src/pages/ProfileForm.tsx`) has a non-linear navigation sid
 - "Find My Match" is always visible during the questions step; pressing it while questions remain unanswered sets `submitAttempted` (turning unanswered squares red), toasts "You have X questions left", and jumps to the first unanswered question
 
 ### Admin authentication
-Admin access is event-scoped password auth — no Supabase Auth involved. The admin password is stored in plain text on the `events` row and verified client-side. The `/admin` route also supports a superadmin OTP flow to view all events.
+Admin access is event-scoped password auth — no Supabase Auth involved. The `/admin` route also
+supports a superadmin OTP flow to view all events.
+
+**Passwords are bcrypt-hashed, not plain text.** Hashing and verification go through `pgcrypto`,
+called as `extensions.crypt()` — always schema-qualified, because `pgcrypto` lives in the
+`extensions` schema and an unqualified call will fail or resolve unpredictably depending on
+`search_path`. Verification happens server-side; the password is never compared client-side and
+the hash column is not readable by the anon role.
+
+Do not "simplify" this back to a plain-text comparison, and do not add a client-side password
+check as a convenience. Both were the pre-hardening design and were deliberately removed.
 
 ### Session management
 Participants are identified by a `session_token` (UUID) stored in `localStorage` via `src/lib/session.ts` under the key `onematch_session`. There is no user account system. The token is written on form submission and checked on every protected route — if a session exists for the current `eventId`, `ProfileForm` redirects straight to `/waiting` without showing the form.
@@ -55,17 +64,39 @@ To reset a session during development: `localStorage.removeItem('onematch_sessio
 ### Supabase integration
 - Client: `src/integrations/supabase/client.ts` — typed with the generated `Database` type
 - Generated types: `src/integrations/supabase/types.ts` — do not edit manually; regenerate from Supabase dashboard
-- Project ID: `ugadanqxefbfecueespu`
-- As of 2026-08-21, this project was migrated off Lovable-managed infrastructure onto a
-  self-owned Supabase account
+- **Project ref: `ugadanqxefbfecueespu`** (Mumbai / `ap-south-1`)
 - Env vars required: `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` (`.env` is gitignored)
+
+**`fgdmyemluzzptwhwglqm` is the old Lovable-managed project.** It is not owned by us and is not in
+use. If that ref appears anywhere in CLI output, config, or a URL, something is wrong — stop and
+flag it rather than proceeding.
+
+Region is permanent (Supabase cannot relocate a project after creation). Mumbai is correct: the
+reveal fires simultaneously across many phones in one room in India, so latency is a product
+requirement, not a preference.
+
+#### CLI gotchas
+- When `supabase link` fails with a privileges error, **the CLI silently falls back to the
+  previously-linked project and `functions deploy` still reports success.** Always read the project
+  ref in the deploy output and confirm it says `ugadanqxefbfecueespu`.
+- `SUPABASE_ACCESS_TOKEN` must be exported in the same shell session where the CLI runs. It does
+  not propagate across terminal tabs or into subprocesses.
+- In the SQL editor, wrap destructive multi-statement scripts in `BEGIN` / `COMMIT` so a failed
+  insert rolls back the preceding delete instead of leaving the table empty.
+
+#### Schema gotchas
+- `public.questions.options` is `text[]`, **not** `jsonb`. Use `ARRAY['a','b','c']` syntax.
+- Option order within a question is semantically meaningful to scoring (see `is_ordinal` and
+  `CLUSTER_DEFINITIONS` below). Never reorder options casually.
+- Never build on a question set drafted in chat or copied from a doc — query the live table first.
 
 ### Matching algorithm
 The `supabase/functions/run-matching/` Edge Function runs on demand (triggered by admin) and is
 split across three files:
 
-- **`index.ts`** — the Deno.serve handler: verifies the admin password, loads the event/questions/
-  participants, calls into `matching.ts`, and writes the results back to the DB.
+- **`index.ts`** — the Deno.serve handler: performs the admin auth check, loads the event/questions/
+  participants, calls into `matching.ts`, and writes the results back to the DB. The function is
+  gated behind admin auth — it is not callable by an unauthenticated client.
 - **`scoring.ts`** — pure compatibility scoring (`calculateCompatibility`, `generateBadge`,
   `checkOrientationCompatibility`). No Deno-only APIs or remote imports.
 - **`matching.ts`** — the pairing/assignment loop (`matchParticipants`). Also pure, no Deno-only
@@ -95,6 +126,9 @@ The `questions` table has two scoring-metadata columns beyond `category`:
   match_key'd question is scored via this cross-question path and is excluded from the normal
   per-question complement loop.
 
+Index-distance scoring is meaningless for categorical questions — that's the whole reason
+`is_ordinal` gates it. Do not widen index-distance scoring to un-gated questions.
+
 #### Categorical (non-ordinal) scoring: `CLUSTER_DEFINITIONS`
 Non-ordinal questions score via `CLUSTER_DEFINITIONS` in `scoring.ts`, keyed by the **exact
 question text**, not category. This is deliberate: several questions share a category (e.g.
@@ -105,6 +139,10 @@ table exactly — `src/test/fixtures/live-questions-snapshot.json` is a pulled s
 `src/test/cluster-drift.test.ts` to guard against this drifting again (a renamed or trimmed option
 just silently fails to cluster; it doesn't throw).
 
+If you edit question text or option strings in the DB, re-pull the snapshot fixture and re-run
+`cluster-drift.test.ts` in the same change. Editing one without the other is how the drift got in
+last time.
+
 #### Alignment vs. complement categories
 - **`ALIGNMENT_CATEGORIES`** (similar answers score higher): `relationship`, `emotional_depth`,
   `conflict`, `values`.
@@ -112,11 +150,12 @@ just silently fails to cluster; it doesn't throw).
   `connection`.
 
 As of 2026-08-21, the live question set only populates `conflict` and `values` from the alignment
-list — **`relationship` and `emotional_depth` currently match zero live questions**, so alignment
-scoring effectively runs on just 3 of the 18 questions. This is a known, flagged gap (not a bug to
+list — **`relationship` and `emotional_depth` matched zero live questions**, so alignment
+scoring effectively ran on just 3 of the 18 questions. This is a known, flagged gap (not a bug to
 silently work around) — either a question needs to be tagged with one of those two categories, or
 the category list should be trimmed to match reality. All three complement categories are
-populated.
+populated. Re-verify this against the live `questions` table before acting on it; the counts above
+have not been re-checked since 2026-08-21.
 
 #### Assignment loop (`matching.ts`)
 1. **Greedy pass** (`greedyPass`): score every eligible pair, sort best-first, walk the sorted list
@@ -139,6 +178,10 @@ populated.
    `compatibility_badge` on each participant row, and the event `status` is updated to `revealed`,
    which the waiting room Realtime subscription detects.
 
+**Do not re-add a same-pool greedy second pass.** It has been proposed and disproved twice; stranded
+users reflect real pool scarcity (candidates claimed earlier by better-scoring pairs), not a
+premature loop exit.
+
 ### Displayed vs. true compatibility score
 `src/lib/score.ts` exports `displayScore()`, which maps the true 0-100 compatibility score into an
 85-99 display range (`85 + (trueScore / 100) * 14`, rounded). The `compatibility_score` stored on
@@ -147,6 +190,8 @@ to the DB. `AdminPanel` shows both the true score and `displayScore()`'s output 
 other surface (`MatchCard`, `CheckMatches`) renders only the displayed value. This exists purely so
 every match feels strong at reveal time — it's cosmetic and has no effect on who gets matched with
 whom; the matching algorithm itself only ever sees and acts on true scores.
+
+This is an intentional product decision, not a bug. Do not "fix" it to show true scores.
 
 ### Key types (`src/lib/types.ts`)
 - `Event` — event row with `status: 'waiting' | 'matching' | 'revealed'`
@@ -162,3 +207,48 @@ whom; the matching algorithm itself only ever sees and acts on true scores.
 
 ### Testing
 Tests live in `src/**/*.{test,spec}.{ts,tsx}`. Test setup is in `src/test/setup.ts`. The jsdom environment is configured in `vitest.config.ts`.
+
+## Security state
+
+Completed:
+- Admin passwords bcrypt-hashed via `pgcrypto`, called as `extensions.crypt()` (schema-qualified)
+- Sensitive column access revoked from the anon role
+- Participant enumeration closed
+- `run-matching` edge function gated behind an admin auth check
+
+Outstanding:
+- **RLS on `public.participants` is incomplete** — the `select`, `update`, and `delete` policies
+  still evaluate to `true`. This is the highest-priority open item. Anyone holding the anon key can
+  read or modify the table.
+- Until that is closed, the live app URL should not be published in promotional material.
+
+## Known open items
+
+- Full end-to-end matching run on the live site, post-auth-deploy, is **still unverified**
+- RLS on `participants` (above)
+- `GEMINI_API_KEY` has not yet been added as a secret on `ugadanqxefbfecueespu`
+- Load-test dummy events `LOADXX` and `LOADXXA21D` are still present in the production database
+  and should be deleted
+- Reveal copy has limited variety and repeats visibly at 70+ participants
+
+## Roadmap
+
+1. OG image for social previews
+2. Gale-Shapley upgrade to replace the greedy assignment
+3. Gemini narrative layer (`gemini-2.0-flash`)
+4. Post-event feedback loop
+5. Prevent double reveals
+
+**Gemini layer constraint:** it must live in a separate, non-blocking edge function. It must not be
+called from inside `run-matching`. A Gemini timeout, error, or quota failure must never prevent
+matching from completing or the reveal from firing — degrade to the existing non-narrative reveal
+silently. Two open-ended questions are planned to feed this layer.
+
+## Working agreement
+
+- Matching logic is frozen well ahead of any live event. Do not refactor `scoring.ts` or
+  `matching.ts` close to an event date.
+- **Verify before asserting.** Check `.env`, query the live table, read the deploy output. Do not
+  state where data lives or what questions exist without checking first — this has produced wrong
+  answers on this project more than once.
+- Prefer small, verifiable steps over large speculative rewrites.
